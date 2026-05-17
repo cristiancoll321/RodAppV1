@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RodApp</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <style>
+    body { overflow: hidden; }
+    .splash {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: var(--bg-dark);
+      position: relative; overflow: hidden;
+    }
+
+    /* Partículas de fondo */
+    .splash::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(0,212,200,0.15) 0%, transparent 55%),
+        radial-gradient(circle at 20% 80%, rgba(255,107,53,0.08) 0%, transparent 40%),
+        radial-gradient(circle at 80% 60%, rgba(0,212,200,0.06) 0%, transparent 35%);
+      animation: breathe 4s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { opacity: 0.7; transform: scale(1); }
+      50%       { opacity: 1; transform: scale(1.05); }
+    }
+
+    .splash-logo {
+      position: relative; z-index: 1;
+      text-align: center;
+    }
+
+    .logo-mark {
+      width: 80px; height: 80px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(0,212,200,0.2), rgba(0,212,200,0.05));
+      border: 1px solid rgba(0,212,200,0.3);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 0 40px rgba(0,212,200,0.2);
+      animation: logoIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes logoIn {
+      from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+      to   { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    .splash-wordmark {
+      font-family: var(--font-display);
+      font-size: 3rem; font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--text-primary);
+      animation: wordIn 0.6s ease 0.3s both;
+    }
+    .splash-wordmark span { color: var(--accent-cyan); }
+
+    .splash-tagline {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-top: 8px;
+      animation: wordIn 0.6s ease 0.5s both;
+    }
+
+    @keyframes wordIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Progress bar */
+    .splash-progress {
+      position: absolute; bottom: 60px;
+      width: 120px; z-index: 1;
+      animation: wordIn 0.4s ease 0.8s both;
+    }
+    .splash-progress-bar {
+      height: 2px;
+      background: var(--bg-surface);
+      border-radius: 2px; overflow: hidden;
+    }
+    .splash-progress-fill {
+      height: 100%;
+      background: var(--accent-cyan);
+      border-radius: 2px;
+      animation: progressLoad 2s ease 1s forwards;
+      width: 0%;
+      box-shadow: 0 0 8px var(--accent-cyan);
+    }
+
+    @keyframes progressLoad {
+      0%   { width: 0%; }
+      30%  { width: 40%; }
+      70%  { width: 70%; }
+      100% { width: 100%; }
+    }
+
+    .bogota-tag {
+      position: absolute; bottom: 28px;
+      font-family: var(--font-mono);
+      font-size: 0.6rem; color: var(--text-muted);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      z-index: 1;
+    }
+
+    /* Grid decorativo */
+    .grid-decoration {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(rgba(0,212,200,0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,200,0.015) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="splash" id="splash">
+    <div class="grid-decoration"></div>
+
+    <div class="splash-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 48 48" fill="none" stroke="var(--accent-cyan)" stroke-width="2" width="44" height="44">
+          <!-- Moto icon estilizada -->
+          <circle cx="14" cy="32" r="8" stroke-width="2"/>
+          <circle cx="34" cy="32" r="8" stroke-width="2"/>
+          <path d="M14 24 L20 14 L30 12 L34 24" stroke-width="2"/>
+          <path d="M14 24 L24 26 L34 24" stroke-width="1.5" stroke-dasharray="2,2"/>
+          <path d="M28 12 L34 8 L36 12" stroke-width="1.5"/>
+          <path d="M20 24 L16 28" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <p class="splash-wordmark">Rod<span>App</span></p>
+      <p class="splash-tagline">La app del motero bogotano</p>
+    </div>
+
+    <div class="splash-progress">
+      <div class="splash-progress-bar">
+        <div class="splash-progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+
+    <p class="bogota-tag">Bogotá · Colombia · 2024</p>
+  </div>
+
+  <script>
+    // Redirigir al login después de la animación
+    setTimeout(() => {
+      document.getElementById('splash').style.opacity = '0';
+      document.getElementById('splash').style.transition = 'opacity 0.5s ease';
+    }, 3200);
+
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 3700);
+  </script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RodApp — Nuevo Documento</title>
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <style>
+    .doc-type-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .doc-type-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .doc-type-card.selected {
+      background: rgba(0,212,200,0.08);
+      border-color: var(--accent-cyan);
+    }
+    .doc-type-card:hover { border-color: rgba(0,212,200,0.4); }
+    .doc-type-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 10px;
+    }
+    .doc-type-card strong { display: block; font-size: 0.88rem; font-weight: 600; }
+    .doc-type-card span { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; display: block; }
+
+    /* Custom doc form */
+    .custom-form { padding: 0 20px; }
+
+    /* File upload area */
+    .upload-area {
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .upload-area:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0,212,200,0.03);
+    }
+    .upload-area input[type="file"] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer;
+      width: 100%; height: 100%;
+    }
+    .upload-icon { color: var(--text-muted); margin: 0 auto 10px; display: block; }
+    .upload-text { font-size: 0.88rem; font-weight: 500; }
+    .upload-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* Reminder row */
+    .reminder-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 0; border-bottom: 1px solid var(--border);
+    }
+    .reminder-row:last-child { border-bottom: none; }
+    .reminder-info { flex: 1; }
+    .reminder-info strong { display: block; font-size: 0.9rem; }
+    .reminder-info span { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Preview card */
+    .preview-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .preview-card.visible { display: block; }
+    .preview-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .preview-icon {
+      width: 40px; height: 40px;
+      border-radius: 8px;
+      background: rgba(0,212,200,0.1);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent-cyan);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-no-nav" style="padding-bottom: 100px;">
+    <div class="page-header fade-up stagger-1">
+      <a href="garage.html" class="back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg>
+      </a>
+      <h2>Nuevo Documento</h2>
+      <div style="width:36px;"></div>
+    </div>
+
+    <!-- Tipo de documento -->
+    <p class="section-title fade-up stagger-2">Documentos Adicionales</p>
+    <p style="padding: 0 20px; font-size:0.85rem; margin-bottom:16px;" class="fade-up stagger-2">
+      Completa tu perfil de vehículo con estos documentos para tener todo en un solo lugar.
+    </p>
+
+    <div style="padding: 0 16px; margin-bottom:20px;" class="fade-up stagger-3">
+      <div class="doc-type-grid">
+        <div class="doc-type-card selected" onclick="selectDocType(this, 'licencia')">
+          <div class="doc-type-icon" style="background:rgba(0,212,200,0.1);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="1.8" width="22" height="22"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </div>
+          <strong>Licencia</strong>
+          <span>Tu permiso para conducir</span>
+        </div>
+        <div class="doc-type-card" onclick="selectDocType(this, 'todo-riesgo')">
+          <div class="doc-type-icon" style="background:rgba(34,197,94,0.1);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="1.8" width="22" height="22"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <strong>Todo Riesgo</strong>
+          <span>Protección adicional</span>
+        </div>
+        <div class="doc-type-card" onclick="selectDocType(this, 'garantia')">
+          <div class="doc-type-icon" style="background:rgba(255,107,53,0.1);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="1.8" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+          </div>
+          <strong>Garantía</strong>
+          <span>De taller o concesionario</span>
+        </div>
+        <div class="doc-type-card" onclick="selectDocType(this, 'personalizado')">
+          <div class="doc-type-icon" style="background:rgba(0,212,200,0.06); border:1px dashed rgba(0,212,200,0.3);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="1.8" width="22" height="22"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <strong>Personalizado</strong>
+          <span>Define tu propio nombre</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario dinámico -->
+    <p class="section-title fade-up stagger-3">Personalizar Documento</p>
+    <div class="custom-form fade-up stagger-4">
+
+      <!-- Campo nombre (solo para personalizado) -->
+      <div class="form-group" id="name-field">
+        <label>Nombre del documento</label>
+        <input type="text" id="doc-name" placeholder="Ej. Garantía de batería" oninput="updatePreview()"/>
+      </div>
+
+      <div class="form-group">
+        <label>Entidad emisora</label>
+        <input type="text" id="doc-entity" placeholder="Ej. Concesionario o Taller" oninput="updatePreview()"/>
+      </div>
+
+      <div class="form-group">
+        <label>Fecha de vencimiento</label>
+        <input type="date" id="doc-expiry" onchange="updatePreview()"/>
+      </div>
+
+      <!-- Recordatorio -->
+      <div class="card" style="padding: 16px; margin-bottom: 20px;">
+        <div class="reminder-row">
+          <div style="width:34px; height:34px; border-radius:8px; background:rgba(0,212,200,0.08); display:flex; align-items:center; justify-content:center; color:var(--accent-cyan); flex-shrink:0;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          <div class="reminder-info">
+            <strong>Activar recordatorio</strong>
+            <span>Notificar antes del vencimiento</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" checked id="reminder-toggle"/>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div id="reminder-days" style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
+          <label>Avisar con cuántos días de anticipación</label>
+          <select>
+            <option>7 días antes</option>
+            <option selected>15 días antes</option>
+            <option>30 días antes</option>
+            <option>45 días antes</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Subir archivo -->
+      <div class="form-group">
+        <label>Archivo adjunto</label>
+        <div class="upload-area">
+          <input type="file" accept="image/*,.pdf" onchange="handleFile(this)"/>
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <p class="upload-text" id="upload-text">Adjuntar foto o PDF</p>
+          <p class="upload-sub">Sube el respaldo de tu documento</p>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="preview-card" id="preview-card">
+        <p style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:10px;">Vista previa</p>
+        <div class="preview-header">
+          <div class="preview-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div>
+            <strong id="preview-name" style="display:block; font-size:0.9rem;">—</strong>
+            <span id="preview-entity" style="font-size:0.75rem; color:var(--text-muted);">—</span>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:0.78rem;">
+          <span style="color:var(--text-muted);">Vencimiento</span>
+          <span id="preview-expiry" style="color:var(--accent-cyan); font-weight:600;">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón fijo -->
+  <div style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; padding:16px 20px; background:var(--bg-dark); border-top:1px solid var(--border);">
+    <button class="btn btn-primary" onclick="saveDocument()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Guardar Documento
+    </button>
+  </div>
+
+  <script src="../js/main.js"></script>
+  <script>
+    // Ocultar toggle de reminder
+    document.getElementById('reminder-toggle').addEventListener('change', function() {
+      document.getElementById('reminder-days').style.display = this.checked ? 'block' : 'none';
+    });
+
+    const docTypes = {
+      'licencia': 'Licencia de Conducción',
+      'todo-riesgo': 'Seguro Todo Riesgo',
+      'garantia': 'Garantía',
+      'personalizado': ''
+    };
+
+    let currentType = 'licencia';
+
+    function selectDocType(el, type) {
+      document.querySelectorAll('.doc-type-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      currentType = type;
+
+      const nameField = document.getElementById('name-field');
+      const nameInput = document.getElementById('doc-name');
+
+      if (type === 'personalizado') {
+        nameField.style.display = 'block';
+        nameInput.placeholder = 'Ej. Garantía de batería';
+        nameInput.value = '';
+      } else {
+        nameField.style.display = 'none';
+        nameInput.value = docTypes[type];
+      }
+      updatePreview();
+    }
+
+    function updatePreview() {
+      const name = currentType === 'personalizado'
+        ? document.getElementById('doc-name').value
+        : docTypes[currentType];
+      const entity = document.getElementById('doc-entity').value;
+      const expiry = document.getElementById('doc-expiry').value;
+
+      if (name || entity || expiry) {
+        document.getElementById('preview-card').classList.add('visible');
+        document.getElementById('preview-name').textContent = name || '—';
+        document.getElementById('preview-entity').textContent = entity || '—';
+        if (expiry) {
+          const d = new Date(expiry + 'T00:00:00');
+          document.getElementById('preview-expiry').textContent = d.toLocaleDateString('es-CO', { day:'2-digit', month:'short', year:'numeric' });
+        } else {
+          document.getElementById('preview-expiry').textContent = '—';
+        }
+      }
+    }
+
+    function handleFile(input) {
+      if (input.files && input.files[0]) {
+        document.getElementById('upload-text').textContent = '✓ ' + input.files[0].name;
+      }
+    }
+
+    function saveDocument() {
+      const name = currentType === 'personalizado'
+        ? document.getElementById('doc-name').value
+        : docTypes[currentType];
+      if (!name) { alert('Por favor ingresa el nombre del documento.'); return; }
+      alert('✅ Documento guardado correctamente.');
+      window.location.href = 'garage.html';
+    }
+
+    // Inicializar: ocultar campo nombre para tipo por defecto
+    document.getElementById('name-field').style.display = 'none';
+    document.getElementById('doc-name').value = docTypes['licencia'];
+  </script>
+</body>
+</html>

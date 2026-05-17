@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RodApp — Mantenimiento</title>
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <style>
+    /* ── Odómetro hero ───────────────── */
+    .odo-hero {
+      margin:16px 16px 20px;
+      background:linear-gradient(135deg,#0f1e27,#081318);
+      border:1px solid var(--border);
+      border-radius:var(--radius-lg);
+      padding:20px;
+      position:relative;overflow:hidden;
+    }
+    .odo-hero::before { content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:radial-gradient(circle,rgba(0,212,200,0.1),transparent 70%);pointer-events:none; }
+    .odo-top   { display:flex;justify-content:space-between;align-items:flex-start; }
+    .odo-val   { font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--accent-cyan);line-height:1; }
+    .odo-unit  { font-size:1rem;color:var(--text-muted);margin-left:4px; }
+    .odo-lbl   { font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px; }
+    .odo-status { display:flex;align-items:center;gap:6px;font-family:var(--font-display);font-size:0.85rem;color:var(--accent-green);margin-top:8px; }
+    .odo-next  { text-align:right; }
+    .odo-next .val { font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--accent-orange); }
+
+    /* ── Alerta card ─────────────────── */
+    .alert-card {
+      margin:0 16px 10px;
+      border-radius:var(--radius);
+      padding:14px 16px;
+      display:flex;align-items:center;gap:12px;
+    }
+    .alert-card.urgent { background:rgba(255,60,60,0.06);border:1px solid rgba(255,60,60,0.25); }
+    .alert-card.warn   { background:rgba(255,107,53,0.06);border:1px solid rgba(255,107,53,0.25); }
+    .alert-card.info   { background:rgba(0,212,200,0.04);border:1px solid rgba(0,212,200,0.15); }
+    .alert-ico { width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .alert-body { flex:1; }
+    .alert-body strong { display:block;font-size:0.88rem;font-weight:500; }
+    .alert-body span   { font-size:0.75rem;color:var(--text-muted); }
+
+    /* ── Servicio card ───────────────── */
+    .svc-card {
+      margin:0 16px 12px;
+      background:var(--bg-card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:16px;
+    }
+    .svc-top { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px; }
+    .svc-name { font-weight:600;font-size:0.92rem; }
+    .svc-sub  { font-size:0.74rem;color:var(--text-muted);margin-top:2px; }
+    .svc-warn { font-size:0.78rem;font-weight:600;margin-bottom:8px; }
+    .svc-meta { display:flex;justify-content:space-between;align-items:center;margin-top:10px; }
+    .svc-km   { font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted); }
+
+    /* ── Tabs filtro ─────────────────── */
+    .filter-tabs { display:flex;gap:8px;padding:0 16px;margin-bottom:20px;overflow-x:auto; }
+    .filter-tabs::-webkit-scrollbar { display:none; }
+    .ftab { flex-shrink:0;padding:6px 16px;border-radius:50px;font-family:var(--font-display);font-size:0.82rem;font-weight:600;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;transition:all 0.2s; }
+    .ftab.on { background:rgba(0,212,200,0.1);border-color:var(--accent-cyan);color:var(--accent-cyan); }
+
+    /* ── Modal de nueva tarea ────────── */
+    .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(5px);z-index:200;display:none;align-items:flex-end; }
+    .modal-overlay.open { display:flex; }
+    .modal-sheet { width:100%;background:var(--bg-card);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:24px 20px 40px;max-height:92vh;overflow-y:auto;animation:slideUp 0.3s ease; }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    .modal-handle { width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 20px; }
+
+    /* Tipo selector en modal */
+    .type-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px; }
+    .type-opt  { background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;cursor:pointer;transition:all 0.2s;font-size:0.82rem;font-weight:500; }
+    .type-opt.sel { background:rgba(0,212,200,0.1);border-color:var(--accent-cyan);color:var(--accent-cyan); }
+    .type-opt .ticon { font-size:1.3rem;margin-bottom:4px; }
+
+    /* Input con sufijo */
+    .input-wrap  { position:relative; }
+    .input-suf   { position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:0.75rem;color:var(--text-muted);pointer-events:none; }
+
+    /* Historial reciente en mantenimiento */
+    .maint-history-item {
+      display:flex;align-items:center;gap:12px;
+      padding:12px 20px;border-bottom:1px solid var(--border);
+      cursor:pointer;transition:background 0.15s;
+    }
+    .maint-history-item:hover { background:var(--bg-surface); }
+    .maint-history-item:last-child { border-bottom:none; }
+    .mhi-icon { width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .mhi-info  { flex:1; }
+    .mhi-info strong { display:block;font-size:0.85rem;font-weight:500; }
+    .mhi-info span   { font-size:0.72rem;color:var(--text-muted); }
+    .mhi-cost  { font-family:var(--font-mono);font-size:0.82rem;color:var(--accent-orange);text-align:right; }
+
+    /* ── Desktop content width ──────────────── */
+    @media (min-width: 768px) {
+      .page, .page-no-nav { padding-left: 0; }
+      .page-header { max-width: 860px; margin-left: auto; margin-right: auto; }
+    }
+    @media (min-width: 1024px) {
+      .page-header { padding: 32px 32px 20px; }
+      .section-title { padding-left: 32px; padding-right: 32px; }
+      .card { margin-left: 32px; margin-right: 32px; }
+    }
+
+    /* already-desktop */
+
+    @media (min-width: 1024px) {
+      .page-header { max-width:900px; margin:0 auto; padding:36px 40px 20px; }
+      .odo-hero  { margin:0 auto 20px !important; max-width:900px; }
+      .filter-tabs { padding:0 40px; max-width:900px; margin:0 auto; }
+      .alert-card  { margin-left:auto !important; margin-right:auto !important; max-width:900px; }
+      .svc-card    { margin-left:auto !important; margin-right:auto !important; max-width:900px; }
+      .card        { max-width:900px; margin-left:auto !important; margin-right:auto !important; }
+      .section-title { max-width:900px; margin-left:auto; margin-right:auto; }
+      .maintenance-grid { max-width:900px; margin:0 auto; padding:0 40px; display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+      .maintenance-grid .svc-card { margin:0 !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── ENCABEZADO ──────────────────────────── -->
+  <div class="page-header fade-up stagger-1">
+    <a href="home.html" class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+    <h2>Mantenimiento</h2>
+    <a href="history.html" style="font-size:0.78rem;color:var(--accent-cyan);text-decoration:none;">Historial</a>
+  </div>
+
+  <!-- ── ODÓMETRO ────────────────────────────── -->
+  <div class="odo-hero fade-up stagger-2">
+    <div class="odo-top">
+      <div>
+        <p class="odo-lbl">Odómetro Actual</p>
+        <p><span class="odo-val">35.450</span><span class="odo-unit">km</span></p>
+        <div class="odo-status">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+          Estado General: Óptimo
+        </div>
+      </div>
+      <div class="odo-next">
+        <p class="odo-lbl">Próximo servicio</p>
+        <p class="val">36.000 km</p>
+        <p style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">Faltan 550 km</p>
+      </div>
+    </div>
+    <!-- Mini barra de progreso hacia próximo servicio -->
+    <div style="margin-top:16px;">
+      <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-muted);margin-bottom:4px;">
+        <span>Último cambio: 32.000 km</span>
+        <span>Próximo: 36.000 km</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:86%;"></div></div>
+    </div>
+  </div>
+
+  <!-- ── FILTROS ──────────────────────────────── -->
+  <div class="filter-tabs fade-up stagger-2">
+    <button class="ftab on"  onclick="filterTab(this,'all')">Todos</button>
+    <button class="ftab"     onclick="filterTab(this,'urgent')">⚠ Urgentes</button>
+    <button class="ftab"     onclick="filterTab(this,'upcoming')">Próximos</button>
+    <button class="ftab"     onclick="filterTab(this,'done')">Completados</button>
+  </div>
+
+  <!-- ── ALERTAS URGENTES ─────────────────────── -->
+  <p class="section-title fade-up stagger-2">Alertas Urgentes</p>
+
+  <div class="alert-card urgent fade-up stagger-3" data-cat="urgent">
+    <div class="alert-ico" style="background:rgba(255,60,60,0.1);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="2" width="18" height="18"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <div class="alert-body">
+      <strong>SOAT vence mañana</strong>
+      <span>Renueva tu seguro obligatorio para evitar multas</span>
+    </div>
+    <a href="documents.html?doc=soat" class="btn btn-sm" style="background:rgba(255,60,60,0.15);border:1px solid rgba(255,60,60,0.3);color:var(--accent-red);white-space:nowrap;padding:6px 12px;font-family:var(--font-display);font-size:0.78rem;">Ver</a>
+  </div>
+
+  <div class="alert-card warn fade-up stagger-3" data-cat="urgent">
+    <div class="alert-ico" style="background:rgba(255,107,53,0.1);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="2" width="18" height="18"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    </div>
+    <div class="alert-body">
+      <strong>Tecnomecánica vencida</strong>
+      <span>Evita multas — agenda tu revisión en un CDA</span>
+    </div>
+    <button onclick="openModal()" class="btn btn-sm btn-outline" style="white-space:nowrap;">Agendar</button>
+  </div>
+
+  <!-- ── PRÓXIMOS SERVICIOS ───────────────────── -->
+  <p class="section-title fade-up stagger-3">Próximos Servicios</p>
+
+  <div class="svc-card fade-up stagger-4" data-cat="upcoming">
+    <div class="svc-top">
+      <div>
+        <p class="svc-name">Cambio de Aceite</p>
+        <p class="svc-sub">Próximo a los 36.000 km · Cada 3.000 km</p>
+      </div>
+      <span class="badge badge-orange">Próximo</span>
+    </div>
+    <p class="svc-warn" style="color:var(--accent-orange);">⚠ Faltan 200 km</p>
+    <div class="progress-bar"><div class="progress-fill" style="width:93%;"></div></div>
+    <div class="svc-meta">
+      <span class="svc-km">33.000 → 36.000 km &nbsp;|&nbsp; 93% completado</span>
+      <button onclick="openModal('Cambio de Aceite')" class="btn btn-sm btn-outline">Registrar</button>
+    </div>
+  </div>
+
+  <div class="svc-card fade-up stagger-4" data-cat="upcoming">
+    <div class="svc-top">
+      <div>
+        <p class="svc-name">Pastillas de Freno</p>
+        <p class="svc-sub">Revisión cada 5.000 km</p>
+      </div>
+      <span class="badge badge-green">Óptimo</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:40%;background:linear-gradient(90deg,var(--accent-green),#16a34a);"></div></div>
+    <div class="svc-meta">
+      <span class="svc-km">Desgaste estimado: 40%</span>
+      <button onclick="openModal('Pastillas de Freno')" class="btn btn-sm btn-outline">Ver detalles</button>
+    </div>
+  </div>
+
+  <div class="svc-card fade-up stagger-5" data-cat="upcoming">
+    <div class="svc-top">
+      <div>
+        <p class="svc-name">Kit de Arrastre</p>
+        <p class="svc-sub">Vida útil: 20.000 km</p>
+      </div>
+      <span class="badge badge-cyan">Atención</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:62%;background:linear-gradient(90deg,var(--accent-orange),#cc5500);"></div></div>
+    <div class="svc-meta">
+      <span class="svc-km">62% vida útil usada · 7.600 km restantes</span>
+      <button class="btn btn-sm btn-outline" onclick="openModal('Kit de Arrastre')">Ver detalles</button>
+    </div>
+  </div>
+
+  <div class="svc-card fade-up stagger-5" data-cat="upcoming">
+    <div class="svc-top">
+      <div>
+        <p class="svc-name">Filtro de Aire</p>
+        <p class="svc-sub">Revisión cada 8.000 km</p>
+      </div>
+      <span class="badge badge-green">Óptimo</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:22%;background:linear-gradient(90deg,var(--accent-green),#16a34a);"></div></div>
+    <div class="svc-meta">
+      <span class="svc-km">22% · Próximo en 6.240 km</span>
+      <button class="btn btn-sm btn-outline">Ver detalles</button>
+    </div>
+  </div>
+
+  <!-- ── HISTORIAL RECIENTE ───────────────────── -->
+  <p class="section-title fade-up stagger-5">Historial Reciente</p>
+  <div class="card" style="padding:0;margin-bottom:20px;" class="fade-up stagger-5">
+    <div class="maint-history-item">
+      <div class="mhi-icon" style="background:rgba(255,107,53,0.1);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="1.8" width="16" height="16"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      </div>
+      <div class="mhi-info">
+        <strong>Cambio de aceite</strong>
+        <span>12 Oct · 32,000 km · Taller Rod</span>
+      </div>
+      <span class="mhi-cost">-$120.000</span>
+    </div>
+    <div class="maint-history-item">
+      <div class="mhi-icon" style="background:rgba(34,197,94,0.08);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="1.8" width="16" height="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="mhi-info">
+        <strong>Lavado Premium</strong>
+        <span>01 Oct · 31,800 km</span>
+      </div>
+      <span class="mhi-cost">-$25.000</span>
+    </div>
+    <div class="maint-history-item">
+      <div class="mhi-icon" style="background:rgba(0,212,200,0.08);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="1.8" width="16" height="16"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      </div>
+      <div class="mhi-info">
+        <strong>Ajuste de cadena</strong>
+        <span>15 Sep · 30,500 km · Taller Rod</span>
+      </div>
+      <span class="mhi-cost">-$40.000</span>
+    </div>
+    <a href="history.html" style="display:block;text-align:center;padding:12px;font-size:0.82rem;color:var(--accent-cyan);text-decoration:none;border-top:1px solid var(--border);">Ver historial completo →</a>
+  </div>
+
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openModal()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</button>
+
+<!-- ════ MODAL NUEVA TAREA ════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h3>Nueva Tarea</h3>
+      <button onclick="closeModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Tipo de tarea -->
+    <p class="section-title" style="padding:0;margin-bottom:10px;">Tipo de mantenimiento</p>
+    <div class="type-grid">
+      <div class="type-opt sel" onclick="selectType(this)"><div class="ticon">🛢️</div>Cambio de aceite</div>
+      <div class="type-opt" onclick="selectType(this)"><div class="ticon">🔧</div>Revisión general</div>
+      <div class="type-opt" onclick="selectType(this)"><div class="ticon">⛽</div>Combustible</div>
+      <div class="type-opt" onclick="selectType(this)"><div class="ticon">🚿</div>Lavado</div>
+      <div class="type-opt" onclick="selectType(this)"><div class="ticon">🔩</div>Frenos / Cadena</div>
+      <div class="type-opt" onclick="selectType(this)"><div class="ticon">📝</div>Otro</div>
+    </div>
+
+    <p class="section-title" style="padding:0;margin:16px 0 10px;">Detalles generales</p>
+    <div class="form-group">
+      <label>Fecha del servicio</label>
+      <input type="date" id="maint-date"/>
+    </div>
+    <div class="form-group">
+      <label>Kilometraje actual</label>
+      <div class="input-wrap">
+        <input type="number" id="maint-km" placeholder="Ej. 35.450"/>
+        <span class="input-suf">km</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Repetir recordatorio cada</label>
+      <div class="input-wrap">
+        <input type="number" id="maint-interval" placeholder="Ej. 3000"/>
+        <span class="input-suf">km</span>
+      </div>
+    </div>
+
+    <p class="section-title" style="padding:0;margin:16px 0 10px;">Detalles adicionales</p>
+    <div class="form-group">
+      <label>Taller / Lugar</label>
+      <input type="text" id="maint-taller" placeholder="Ej. Taller Rod, Calle 72"/>
+    </div>
+    <div class="form-group">
+      <label>Costo</label>
+      <div class="input-wrap">
+        <input type="number" id="maint-cost" placeholder="0"/>
+        <span class="input-suf">COP</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Observaciones</label>
+      <textarea rows="3" id="maint-obs" placeholder="Marca de aceite, repuestos usados, recomendaciones del mecánico..." style="resize:none;"></textarea>
+    </div>
+
+    <p style="font-size:0.78rem;color:var(--text-muted);line-height:1.5;margin-bottom:20px;">
+      Al guardar, se actualizará el historial de tu vehículo y se programará un recordatorio basado en el intervalo ingresado.
+    </p>
+
+    <button class="btn btn-primary" onclick="saveMaintenance()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+      Guardar Mantenimiento
+    </button>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <a href="home.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Inicio</a>
+  <a href="garage.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Garaje</a>
+  <a href="map.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Mapa</a>
+  <a href="history.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Historial</a>
+  <a href="profile.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</a>
+</nav>
+
+<script src="../js/main.js"></script>
+  <script src="../js/nav.js"></script>
+<script>
+  // Precargar fecha de hoy
+  document.addEventListener('DOMContentLoaded', () => {
+    const today = new Date().toISOString().split('T')[0];
+    const d = document.getElementById('maint-date');
+    if (d) d.value = today;
+  });
+
+  function openModal(tipo) {
+    if (tipo) {
+      document.querySelectorAll('.type-opt').forEach(o => {
+        o.classList.toggle('sel', o.textContent.includes(tipo));
+      });
+    }
+    document.getElementById('modal-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+  function selectType(el) {
+    document.querySelectorAll('.type-opt').forEach(o => o.classList.remove('sel'));
+    el.classList.add('sel');
+  }
+  function filterTab(el, cat) {
+    document.querySelectorAll('.ftab').forEach(t => t.classList.remove('on'));
+    el.classList.add('on');
+    if (cat === 'all') {
+      document.querySelectorAll('[data-cat]').forEach(c => c.style.display = '');
+    } else {
+      document.querySelectorAll('[data-cat]').forEach(c => {
+        c.style.display = c.dataset.cat === cat ? '' : 'none';
+      });
+    }
+  }
+  function saveMaintenance() {
+    const km = document.getElementById('maint-km').value;
+    if (!km) { alert('Por favor ingresa el kilometraje.'); return; }
+    closeModal();
+    // Mostrar confirmación
+    const toast = document.createElement('div');
+    toast.textContent = '✅ Mantenimiento registrado';
+    toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--accent-cyan);color:#0a0c0f;padding:10px 20px;border-radius:50px;font-family:var(--font-display);font-weight:600;font-size:0.85rem;z-index:500;animation:fadeUp 0.3s ease;';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2800);
+  }
+</script>
+</body>
+</html>

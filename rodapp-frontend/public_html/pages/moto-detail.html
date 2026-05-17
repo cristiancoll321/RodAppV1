@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RodApp — Detalle de Moto</title>
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <style>
+    /* Hero de la moto */
+    .moto-hero {
+      height: 220px;
+      background: linear-gradient(160deg, #061820 0%, #0a1f2c 50%, #061018 100%);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .moto-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle at 20% 50%, rgba(0,212,200,0.12) 0%, transparent 50%),
+        radial-gradient(circle at 80% 30%, rgba(255,107,53,0.06) 0%, transparent 50%);
+    }
+    .moto-hero svg { opacity: 0.6; position: relative; z-index: 1; }
+    .hero-badge {
+      position: absolute; top: 16px; right: 16px;
+      z-index: 2;
+    }
+    .hero-back {
+      position: absolute; top: 16px; left: 16px;
+      z-index: 2;
+    }
+    .hero-edit {
+      position: absolute; bottom: 16px; right: 16px;
+      z-index: 2;
+      width: 36px; height: 36px;
+      background: rgba(0,212,200,0.15);
+      border: 1px solid var(--accent-cyan);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--accent-cyan);
+    }
+
+    /* Moto info header */
+    .moto-info-header {
+      padding: 20px 20px 0;
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .moto-title { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; }
+    .moto-subtitle { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* Stats grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 16px 16px;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+    .stat-card .stat-lbl { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+    .stat-card .stat-val { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
+
+    /* Docs list */
+    .doc-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer; text-decoration: none; color: var(--text-primary);
+      transition: background 0.15s;
+    }
+    .doc-row:hover { background: var(--bg-surface); }
+    .doc-row:last-child { border-bottom: none; }
+    .doc-row-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .doc-row-info { flex: 1; }
+    .doc-row-info strong { display: block; font-size: 0.88rem; }
+    .doc-row-info span { font-size: 0.72rem; color: var(--text-muted); }
+    .doc-row-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+
+    /* Spec table */
+    .spec-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 11px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+    }
+    .spec-row:last-child { border-bottom: none; }
+    .spec-row span:first-child { color: var(--text-muted); }
+    .spec-row span:last-child { font-weight: 500; }
+
+    /* Action buttons row */
+    .action-row {
+      display: flex; gap: 10px;
+      margin: 0 16px 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-no-nav" style="padding-bottom: 32px;">
+
+    <!-- Hero -->
+    <div class="moto-hero">
+      <a href="garage.html" class="hero-back back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg>
+      </a>
+      <div class="hero-badge">
+        <span class="badge badge-cyan">Premium · Verificado</span>
+      </div>
+      <!-- Moto SVG ilustración -->
+      <svg viewBox="0 0 200 100" width="280" height="140" fill="none" stroke="rgba(0,212,200,0.5)" stroke-width="1.2" xmlns="http://www.w3.org/2000/svg">
+        <!-- Ruedas -->
+        <circle cx="48" cy="72" r="22" stroke="rgba(0,212,200,0.4)" stroke-width="2"/>
+        <circle cx="48" cy="72" r="14" stroke="rgba(0,212,200,0.2)" stroke-width="1"/>
+        <circle cx="152" cy="72" r="22" stroke="rgba(0,212,200,0.4)" stroke-width="2"/>
+        <circle cx="152" cy="72" r="14" stroke="rgba(0,212,200,0.2)" stroke-width="1"/>
+        <!-- Chasis -->
+        <path d="M48 50 L80 30 L130 28 L155 50 L152 50" stroke="rgba(0,212,200,0.6)" stroke-width="1.5"/>
+        <path d="M48 50 L100 52 L152 50" stroke="rgba(0,212,200,0.3)" stroke-width="1"/>
+        <!-- Motor -->
+        <rect x="85" y="45" width="30" height="20" rx="3" fill="rgba(0,212,200,0.08)" stroke="rgba(0,212,200,0.3)" stroke-width="1.2"/>
+        <!-- Manillar -->
+        <path d="M128 28 L140 20 L145 24" stroke="rgba(0,212,200,0.5)" stroke-width="1.5"/>
+        <!-- Asiento -->
+        <path d="M90 28 Q110 22 130 28" stroke="rgba(0,212,200,0.4)" stroke-width="2" stroke-linecap="round"/>
+        <!-- Escape -->
+        <path d="M85 60 L60 65 L55 70" stroke="rgba(255,107,53,0.5)" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Faro -->
+        <ellipse cx="157" cy="44" rx="6" ry="4" fill="rgba(0,212,200,0.15)" stroke="rgba(0,212,200,0.5)" stroke-width="1"/>
+      </svg>
+      <div class="hero-edit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </div>
+    </div>
+
+    <!-- Header info -->
+    <div class="moto-info-header fade-up stagger-1">
+      <div>
+        <p class="moto-title">Yamaha MT-09</p>
+        <p class="moto-subtitle">Placa: XYZ 123 · 2023</p>
+      </div>
+    </div>
+
+    <!-- Quick stats -->
+    <div class="stats-grid fade-up stagger-2">
+      <div class="stat-card">
+        <p class="stat-lbl">Odómetro</p>
+        <p class="stat-val" style="color:var(--accent-cyan);">12,500 <span style="font-size:0.8rem;">km</span></p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-lbl">Próx. aceite</p>
+        <p class="stat-val" style="color:var(--accent-orange);">500 <span style="font-size:0.8rem;">km</span></p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-lbl">Estado legal</p>
+        <p class="stat-val" style="color:var(--accent-green);">Vigente</p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-lbl">Mantenimientos</p>
+        <p class="stat-val">4 <span style="font-size:0.8rem;">este año</span></p>
+      </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="action-row fade-up stagger-2">
+      <a href="fuel-register.html" class="btn btn-outline" style="font-size:0.82rem; padding:10px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 22V8l6-6h8l4 4v16"/></svg>
+        Combustible
+      </a>
+      <a href="maintenance.html" class="btn btn-outline" style="font-size:0.82rem; padding:10px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Mantenimiento
+      </a>
+      <a href="map.html" class="btn btn-outline" style="font-size:0.82rem; padding:10px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
+        Mapa
+      </a>
+    </div>
+
+    <!-- Documentos -->
+    <p class="section-title fade-up stagger-3">Documentos Obligatorios</p>
+    <div class="card" style="padding:0; margin-bottom:16px;" class="fade-up stagger-3">
+      <a href="documents.html?doc=soat" class="doc-row">
+        <div class="doc-row-icon" style="background:rgba(34,197,94,0.1);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="1.8" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="doc-row-info"><strong>SOAT Digital</strong><span>Vigente hasta Dic 2024</span></div>
+        <div class="doc-row-right"><span class="badge badge-green">Vigente</span></div>
+      </a>
+      <a href="documents.html?doc=rtm" class="doc-row">
+        <div class="doc-row-icon" style="background:rgba(255,107,53,0.1);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="1.8" width="16" height="16"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div class="doc-row-info"><strong>RTM</strong><span>Vence en 5 días</span></div>
+        <div class="doc-row-right"><span class="badge badge-orange">Expira pronto</span></div>
+      </a>
+      <a href="documents.html?doc=licencia" class="doc-row">
+        <div class="doc-row-icon" style="background:rgba(0,212,200,0.08);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="1.8" width="16" height="16"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        </div>
+        <div class="doc-row-info"><strong>Licencia de Conducción</strong><span>Categoría A2 - Permanente</span></div>
+        <div class="doc-row-right"><span class="badge badge-green">A2</span></div>
+      </a>
+      <a href="documents.html?doc=todo-riesgo" class="doc-row">
+        <div class="doc-row-icon" style="background:rgba(34,197,94,0.08);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="1.8" width="16" height="16"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="doc-row-info"><strong>Seguro Todo Riesgo</strong><span>Vigente hasta Dic 2024</span></div>
+        <div class="doc-row-right"><span class="badge badge-green">Vigente</span></div>
+      </a>
+    </div>
+
+    <!-- Especificaciones -->
+    <p class="section-title fade-up stagger-4">Detalles del Vehículo</p>
+    <div class="card" style="padding:0; margin-bottom:16px;" class="fade-up stagger-4">
+      <div class="spec-row"><span>Marca</span><span>Yamaha</span></div>
+      <div class="spec-row"><span>Modelo</span><span>MT-09</span></div>
+      <div class="spec-row"><span>Año</span><span>2023</span></div>
+      <div class="spec-row"><span>Color</span><span>Cyan Storm</span></div>
+      <div class="spec-row"><span>Cilindraje</span><span>890 cc</span></div>
+      <div class="spec-row"><span>Placa</span><span style="font-family:var(--font-mono);">XYZ 123</span></div>
+      <div class="spec-row"><span>N° Chasis</span><span style="font-family:var(--font-mono);">RN29J1C...</span></div>
+      <div class="spec-row"><span>Odómetro inicial</span><span>0 km</span></div>
+    </div>
+
+    <!-- Botón eliminar moto -->
+    <div style="padding: 0 16px;">
+      <button class="btn btn-danger" onclick="confirmDelete()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        Eliminar motocicleta
+      </button>
+    </div>
+  </div>
+
+  <script src="../js/main.js"></script>
+  <script>
+    function confirmDelete() {
+      if (confirm('¿Estás seguro de que quieres eliminar esta motocicleta? Esta acción no se puede deshacer.')) {
+        window.location.href = 'garage.html';
+      }
+    }
+  </script>
+</body>
+</html>

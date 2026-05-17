@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RodApp — Registro de Combustible</title>
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <style>
+    /* Fuel type selector */
+    .fuel-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .fuel-option {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .fuel-option.selected {
+      background: rgba(0,212,200,0.1);
+      border-color: var(--accent-cyan);
+    }
+    .fuel-option p { font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-top: 6px; }
+    .fuel-option span { font-size: 0.7rem; color: var(--text-muted); }
+    .fuel-icon { font-size: 1.4rem; }
+
+    /* Cost input grande */
+    .cost-display {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .cost-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .cost-input-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .currency { font-family: var(--font-display); font-size: 1.4rem; color: var(--text-muted); }
+    #cost-input {
+      background: transparent; border: none;
+      font-family: var(--font-display); font-size: 2.4rem; font-weight: 700;
+      color: var(--accent-cyan); text-align: center;
+      width: 180px; outline: none;
+    }
+    #cost-input::placeholder { color: rgba(0,212,200,0.3); }
+
+    /* Location toggle */
+    .location-row {
+      display: flex; align-items: center;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px; gap: 12px;
+    }
+    .location-icon { color: var(--accent-cyan); flex-shrink: 0; }
+    .location-info { flex: 1; }
+    .location-info strong { display: block; font-size: 0.88rem; }
+    .location-info span { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Historial de combustible */
+    .fuel-history-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .fuel-summary {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .fuel-summary .amount { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; }
+    .fuel-summary .trend { font-size: 0.78rem; color: var(--accent-green); }
+
+    /* Mini bar chart */
+    .mini-chart {
+      display: flex; align-items: flex-end; gap: 6px;
+      height: 50px; padding: 0 16px 12px;
+    }
+    .mini-bar { flex: 1; border-radius: 3px 3px 0 0; background: rgba(0,212,200,0.2); min-height: 4px; }
+    .mini-bar.peak { background: var(--accent-cyan); }
+
+    .fuel-item {
+      display: flex; align-items: center;
+      padding: 12px 16px; gap: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .fuel-station-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      background: rgba(0,212,200,0.08);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent-cyan); flex-shrink: 0;
+    }
+    .fuel-item-info { flex: 1; }
+    .fuel-item-info strong { display: block; font-size: 0.85rem; }
+    .fuel-item-info span { font-size: 0.72rem; color: var(--text-muted); }
+    .fuel-item-amount { text-align: right; }
+    .fuel-item-amount strong { display: block; font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-orange); }
+    .fuel-item-amount span { font-size: 0.7rem; color: var(--text-muted); }
+
+    /* View tabs */
+    .view-tabs { display: flex; gap: 0; margin: 0 16px 20px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .view-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; color: var(--text-muted); background: transparent; border: none; transition: all 0.2s; }
+    .view-tab.active { background: var(--bg-surface); color: var(--accent-cyan); }
+  </style>
+</head>
+<body>
+  <div class="page-no-nav" id="form-view" style="padding-bottom: 100px;">
+    <div class="page-header fade-up stagger-1">
+      <a href="home.html" class="back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg>
+      </a>
+      <h2>Registro de Combustible</h2>
+      <a href="fuel-register.html?view=history" style="font-size:0.78rem; color:var(--accent-cyan); text-decoration:none;">Historial</a>
+    </div>
+
+    <div style="padding: 0 20px;">
+      <!-- Tipo de gasolina -->
+      <p class="section-title" style="padding:0; margin-bottom:12px;" class="fade-up stagger-2">Tipo de Gasolina</p>
+      <div class="fuel-selector fade-up stagger-2">
+        <div class="fuel-option selected" onclick="selectFuel(this)">
+          <div class="fuel-icon">⛽</div>
+          <p>Corriente</p>
+          <span>Regular</span>
+        </div>
+        <div class="fuel-option" onclick="selectFuel(this)">
+          <div class="fuel-icon">🔥</div>
+          <p>Extra</p>
+          <span>Premium</span>
+        </div>
+        <div class="fuel-option" onclick="selectFuel(this)">
+          <div class="fuel-icon">⚡</div>
+          <p>Eléctrico</p>
+          <span>kWh</span>
+        </div>
+      </div>
+
+      <!-- Costo -->
+      <div class="cost-display fade-up stagger-3">
+        <p class="cost-label">Costo de la Recarga</p>
+        <div class="cost-input-wrap">
+          <span class="currency">$</span>
+          <input type="number" id="cost-input" placeholder="0" oninput="updateGallons()"/>
+        </div>
+        <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;" id="gallons-est">Ingresa el valor pagado</p>
+      </div>
+
+      <!-- Kilometraje -->
+      <div class="form-group fade-up stagger-3">
+        <label>Kilometraje Actual</label>
+        <div style="position:relative;">
+          <input type="number" value="12500" id="km-input"/>
+          <span style="position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:0.78rem; color:var(--text-muted);">km</span>
+        </div>
+        <p style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">Último registro: 12,350 km</p>
+      </div>
+
+      <!-- Galones / Litros -->
+      <div class="form-group fade-up stagger-3">
+        <label>Cantidad cargada (galones)</label>
+        <div style="position:relative;">
+          <input type="number" step="0.1" placeholder="0.0" id="gal-input"/>
+          <span style="position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:0.78rem; color:var(--text-muted);">gal</span>
+        </div>
+      </div>
+
+      <!-- Ubicación -->
+      <p class="section-title" style="padding:0; margin-bottom:8px;" class="fade-up stagger-4">Ubicación</p>
+      <div class="location-row fade-up stagger-4" style="margin-bottom:20px;">
+        <div class="location-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="location-info">
+          <strong>Bogotá, Cundinamarca</strong>
+          <span>Posición detectada automáticamente</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" checked id="location-toggle"/>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Notas -->
+      <div class="form-group fade-up stagger-4">
+        <label>Notas (opcional)</label>
+        <input type="text" placeholder="Ej. Llené el tanque completo"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vista historial -->
+  <div id="history-view" style="display:none;" class="page-no-nav" style="padding-bottom:100px;">
+    <div class="page-header fade-up stagger-1">
+      <a href="fuel-register.html" class="back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg>
+      </a>
+      <h2>Registro de Combustible</h2>
+      <div style="width:36px;"></div>
+    </div>
+
+    <!-- Resumen mensual -->
+    <div class="card fade-up stagger-2" style="margin-bottom:16px;">
+      <p style="font-family:var(--font-display); font-size:0.75rem; font-weight:600; color:var(--text-secondary); letter-spacing:0.05em; text-transform:uppercase; margin-bottom:6px;">Gasto Mensual</p>
+      <div style="display:flex; align-items:flex-end; gap:10px; margin-bottom:12px;">
+        <span style="font-family:var(--font-display); font-size:2rem; font-weight:700;">$120.000</span>
+        <span style="font-size:0.82rem; color:var(--accent-green); margin-bottom:6px;">+5%</span>
+      </div>
+      <div class="mini-chart">
+        <div class="mini-bar" style="height:45%;"></div>
+        <div class="mini-bar" style="height:55%;"></div>
+        <div class="mini-bar" style="height:38%;"></div>
+        <div class="mini-bar" style="height:70%;"></div>
+        <div class="mini-bar peak" style="height:100%;"></div>
+        <div class="mini-bar" style="height:80%;"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:0 0 4px; font-size:0.68rem; color:var(--text-muted);">
+        <span>May</span><span>Jun</span><span>Jul</span><span>Ago</span><span>Sep</span><span>Oct</span>
+      </div>
+    </div>
+
+    <!-- Lista historial -->
+    <div style="display:flex; justify-content:space-between; padding: 0 20px; margin-bottom:8px;">
+      <p class="section-title" style="padding:0; margin:0;">Historial</p>
+      <a href="#" style="font-size:0.78rem; color:var(--accent-cyan); text-decoration:none;">Ver todo</a>
+    </div>
+
+    <div class="card" style="padding:0;">
+      <div class="fuel-item">
+        <div class="fuel-station-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M3 22V8l6-6h8l4 4v16"/></svg></div>
+        <div class="fuel-item-info"><strong>Terpel Calle 80</strong><span>12 Oct 2023 · Corriente</span></div>
+        <div class="fuel-item-amount"><strong>-$25.000</strong><span>2.1 gal</span></div>
+      </div>
+      <div class="fuel-item">
+        <div class="fuel-station-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M3 22V8l6-6h8l4 4v16"/></svg></div>
+        <div class="fuel-item-info"><strong>Primax Av. Boyacá</strong><span>05 Oct 2023 · Extra</span></div>
+        <div class="fuel-item-amount"><strong>-$32.000</strong><span>2.4 gal</span></div>
+      </div>
+      <div class="fuel-item">
+        <div class="fuel-station-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M3 22V8l6-6h8l4 4v16"/></svg></div>
+        <div class="fuel-item-info"><strong>Texaco NQS</strong><span>28 Sep 2023 · Corriente</span></div>
+        <div class="fuel-item-amount"><strong>-$18.000</strong><span>1.8 gal</span></div>
+      </div>
+      <div class="fuel-item">
+        <div class="fuel-station-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M3 22V8l6-6h8l4 4v16"/></svg></div>
+        <div class="fuel-item-info"><strong>Terpel Suba</strong><span>15 Sep 2023 · Extra</span></div>
+        <div class="fuel-item-amount"><strong>-$45.000</strong><span>3.0 gal</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón fijo -->
+  <div style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; padding:16px 20px; background:var(--bg-dark); border-top:1px solid var(--border);" id="form-footer">
+    <button class="btn btn-primary" onclick="saveRecord()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Registrar Recarga
+    </button>
+  </div>
+
+  <script src="../js/main.js"></script>
+  <script>
+    // Detectar si es vista historial
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('view') === 'history') {
+      document.getElementById('form-view').style.display = 'none';
+      document.getElementById('history-view').style.display = 'block';
+      document.getElementById('form-footer').style.display = 'none';
+    }
+
+    function selectFuel(el) {
+      document.querySelectorAll('.fuel-option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    function updateGallons() {
+      const cost = parseFloat(document.getElementById('cost-input').value) || 0;
+      const pricePerGal = 12500; // precio promedio galón corriente Colombia
+      if (cost > 0) {
+        const gals = (cost / pricePerGal).toFixed(2);
+        document.getElementById('gallons-est').textContent = `≈ ${gals} galones a $${pricePerGal.toLocaleString()}/gal`;
+        document.getElementById('gal-input').value = gals;
+      } else {
+        document.getElementById('gallons-est').textContent = 'Ingresa el valor pagado';
+      }
+    }
+
+    function saveRecord() {
+      const cost = document.getElementById('cost-input').value;
+      const km = document.getElementById('km-input').value;
+      if (!cost || cost <= 0) { alert('Por favor ingresa el costo de la recarga.'); return; }
+      if (!km) { alert('Por favor ingresa el kilometraje actual.'); return; }
+      alert('✅ Recarga registrada correctamente.');
+      window.location.href = 'history.html';
+    }
+  </script>
+</body>
+</html>

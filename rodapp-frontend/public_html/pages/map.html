@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RodApp — Mapa</title>
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <style>
+
+    /* ── Reset para página de mapa ─────────────────── */
+    html, body {
+      margin: 0; padding: 0;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    /* ── Layout wrapper: sidebar + mapa ────────────── */
+    .map-layout {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    /* El sidebar ocupa su espacio normal (bottom-nav lo posiciona fixed,
+       así que necesitamos un spacer en móvil o que el container tenga offset) */
+
+    /* ── Contenedor del mapa ─────────────────────────
+       Móvil: ocupa todo el ancho, deja espacio abajo para bottom-nav
+       Desktop: empieza después del sidebar                         */
+    .map-container {
+      position: relative;
+      /* Móvil: full width, height = viewport - bottom-nav */
+      width: 100%;
+      height: calc(100vh - 64px);   /* 64px = --nav-h en móvil */
+      background: #070d12;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    /* Desktop: sidebar fijo → map-container compensa */
+    @media (min-width: 768px) {
+      .map-container {
+        margin-left: var(--sidebar-w, 240px);
+        width: calc(100vw - var(--sidebar-w, 240px));
+        height: 100vh;
+      }
+    }
+
+    /* ── Grid de fondo ──────────────────────────────── */
+    .map-bg {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(rgba(0,212,200,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,200,0.025) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    /* Calles SVG */
+    .map-roads {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+    }
+
+    /* ── Punto de ubicación ─────────────────────────── */
+    .my-location {
+      position: absolute;
+      width: 16px; height: 16px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      border: 3px solid var(--bg-dark);
+      box-shadow: 0 0 0 6px rgba(0,212,200,0.2), 0 0 0 12px rgba(0,212,200,0.08);
+      top: 50%; left: 48%;
+      z-index: 6;
+      transform: translate(-50%,-50%);
+    }
+
+    /* Pulso animado */
+    .my-location::after {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 2px solid rgba(0,212,200,0.3);
+      animation: locationPulse 2s ease-out infinite;
+    }
+    @keyframes locationPulse {
+      0%   { transform: scale(0.8); opacity: 1; }
+      100% { transform: scale(2);   opacity: 0; }
+    }
+
+    /* ── Pins ───────────────────────────────────────── */
+    .map-pin {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      cursor: pointer;
+      z-index: 5;
+      transition: transform 0.15s;
+    }
+    .map-pin:hover { transform: translate(-50%, -110%); }
+
+    .pin-bubble {
+      background: var(--accent-cyan);
+      color: var(--bg-dark);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.75rem; font-weight: 700;
+      font-family: var(--font-display);
+      white-space: nowrap;
+      position: relative;
+      box-shadow: 0 4px 16px rgba(0,212,200,0.35);
+      letter-spacing: 0.03em;
+    }
+    .pin-bubble::after {
+      content: '';
+      position: absolute; bottom: -6px; left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: var(--accent-cyan);
+      border-bottom: none;
+    }
+    .pin-bubble.orange {
+      background: var(--accent-orange);
+      box-shadow: 0 4px 16px rgba(255,107,53,0.35);
+    }
+    .pin-bubble.orange::after { border-top-color: var(--accent-orange); }
+
+    /* ── Barra de búsqueda ──────────────────────────── */
+    .map-search {
+      position: absolute;
+      top: 16px;
+      left: 16px; right: 16px;
+      z-index: 20;
+      max-width: 520px;
+    }
+    .map-search input {
+      background: rgba(14,18,24,0.96);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(16px);
+      padding-left: 44px;
+      border-radius: 50px;
+      height: 46px;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .map-search input:focus { border-color: var(--accent-cyan); }
+    .search-icon {
+      position: absolute; left: 15px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    /* Centrar buscador en desktop */
+    @media (min-width: 768px) {
+      .map-search {
+        left: 50%; right: auto;
+        transform: translateX(-50%);
+        width: 520px;
+      }
+    }
+
+    /* ── Chips de filtro ────────────────────────────── */
+    .map-filters {
+      position: absolute;
+      top: 74px; left: 0; right: 0;
+      display: flex; gap: 8px;
+      padding: 0 16px;
+      overflow-x: auto;
+      z-index: 20;
+    }
+    .map-filters::-webkit-scrollbar { display: none; }
+
+    @media (min-width: 768px) {
+      .map-filters {
+        left: 50%; right: auto;
+        transform: translateX(-50%);
+        width: 520px;
+        padding: 0;
+        justify-content: center;
+      }
+    }
+
+    .filter-chip {
+      flex-shrink: 0;
+      background: rgba(14,18,24,0.95);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 50px;
+      padding: 6px 14px;
+      font-size: 0.8rem; font-weight: 500;
+      color: var(--text-primary);
+      cursor: pointer;
+      white-space: nowrap;
+      backdrop-filter: blur(10px);
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .filter-chip.active {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      background: rgba(0,212,200,0.12);
+    }
+    .filter-chip:hover { border-color: rgba(0,212,200,0.4); }
+
+    /* ── Panel inferior ─────────────────────────────── */
+    .map-bottom {
+      position: absolute;
+      bottom: 16px;
+      left: 16px; right: 16px;
+      z-index: 20;
+      display: flex; flex-direction: column; gap: 8px;
+      max-width: 520px;
+    }
+
+    @media (min-width: 768px) {
+      .map-bottom {
+        left: 50%; right: auto;
+        transform: translateX(-50%);
+        width: 520px;
+        bottom: 24px;
+      }
+    }
+
+    /* Tarjeta de navegación activa */
+    .nav-info-card {
+      background: rgba(14,18,24,0.97);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    .nav-direction-icon {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      background: rgba(0,212,200,0.12);
+      border: 1px solid rgba(0,212,200,0.2);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent-cyan); flex-shrink: 0;
+    }
+    .nav-info { flex: 1; }
+    .nav-distance { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--text-primary); }
+    .nav-street   { font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; }
+
+    .nav-meta { display: flex; gap: 8px; }
+    .nav-meta-item {
+      flex: 1;
+      background: rgba(14,18,24,0.97);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+    .nav-meta-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+    .nav-meta-val   { font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin-top: 3px; }
+
+    /* Botón finalizar ruta */
+    .btn-end-route {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px;
+      background: rgba(255,60,60,0.1);
+      border: 1px solid rgba(255,60,60,0.3);
+      border-radius: var(--radius);
+      color: var(--accent-red);
+      font-family: var(--font-display); font-size: 0.92rem; font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      transition: background 0.2s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+    .btn-end-route:hover { background: rgba(255,60,60,0.18); }
+
+    /* Tarjeta de servicio */
+    .service-card {
+      background: rgba(14,18,24,0.97);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 13px 16px;
+      display: flex; align-items: center; gap: 12px;
+      backdrop-filter: blur(16px);
+      cursor: pointer;
+      transition: border-color 0.2s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+    .service-card:hover { border-color: var(--border-glow); }
+    .service-icon {
+      width: 40px; height: 40px; border-radius: 8px;
+      background: var(--bg-surface);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .service-info { flex: 1; }
+    .service-info strong { display: block; font-size: 0.88rem; }
+    .service-info span   { font-size: 0.74rem; color: var(--text-muted); }
+    .service-rating { font-size: 0.75rem; font-weight: 600; color: #fbbf24; }
+
+    /* ── Controles de zoom ──────────────────────────── */
+    .zoom-controls {
+      position: absolute;
+      right: 16px; top: 50%;
+      transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 6px;
+      z-index: 20;
+    }
+    .zoom-btn {
+      width: 38px; height: 38px;
+      background: rgba(14,18,24,0.96);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-primary);
+      font-size: 1.2rem;
+      backdrop-filter: blur(12px);
+      transition: border-color 0.2s, background 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      user-select: none;
+    }
+    .zoom-btn:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0,212,200,0.08);
+    }
+
+    /* ── Indicador de estado en la esquina ──────────── */
+    .map-status {
+      position: absolute;
+      top: 16px; right: 16px;
+      z-index: 20;
+      display: flex; flex-direction: column; gap: 6px;
+      align-items: flex-end;
+    }
+    .status-pill {
+      background: rgba(14,18,24,0.96);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 0.72rem;
+      font-family: var(--font-display);
+      font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    @media (min-width: 768px) {
+      .map-status { right: 72px; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar se posiciona aquí de forma fixed via CSS global -->
+
+  <!-- Contenedor principal del mapa -->
+  <div class="map-container">
+
+    <!-- Fondo grilla -->
+    <div class="map-bg"></div>
+
+    <!-- SVG calles — viewBox proporcional al viewport -->
+    <svg class="map-roads" viewBox="0 0 1000 700"
+         preserveAspectRatio="xMidYMid slice"
+         xmlns="http://www.w3.org/2000/svg">
+      <!-- Avenidas principales horizontales -->
+      <line x1="0" y1="350" x2="1000" y2="350" stroke="rgba(255,255,255,0.07)" stroke-width="20"/>
+      <line x1="0" y1="180" x2="1000" y2="180" stroke="rgba(255,255,255,0.04)" stroke-width="10"/>
+      <line x1="0" y1="540" x2="1000" y2="540" stroke="rgba(255,255,255,0.04)" stroke-width="10"/>
+      <!-- Avenidas principales verticales -->
+      <line x1="460" y1="0" x2="460" y2="700" stroke="rgba(255,255,255,0.07)" stroke-width="20"/>
+      <line x1="220" y1="0" x2="220" y2="700" stroke="rgba(255,255,255,0.04)" stroke-width="10"/>
+      <line x1="720" y1="0" x2="720" y2="700" stroke="rgba(255,255,255,0.04)" stroke-width="10"/>
+      <!-- Calles secundarias -->
+      <line x1="0" y1="90"  x2="1000" y2="90"  stroke="rgba(255,255,255,0.025)" stroke-width="5"/>
+      <line x1="0" y1="460" x2="1000" y2="460" stroke="rgba(255,255,255,0.025)" stroke-width="5"/>
+      <line x1="340" y1="0" x2="340" y2="700"  stroke="rgba(255,255,255,0.025)" stroke-width="5"/>
+      <line x1="600" y1="0" x2="600" y2="700"  stroke="rgba(255,255,255,0.025)" stroke-width="5"/>
+      <line x1="840" y1="0" x2="840" y2="700"  stroke="rgba(255,255,255,0.025)" stroke-width="5"/>
+      <!-- Diagonal -->
+      <line x1="0" y1="600" x2="400" y2="300"  stroke="rgba(255,255,255,0.025)" stroke-width="5"/>
+      <!-- Ruta activa con dash animado -->
+      <polyline
+        points="460,380 460,310 540,260 720,180"
+        stroke="rgba(0,212,200,0.75)" stroke-width="5"
+        fill="none" stroke-dasharray="12,6" stroke-linecap="round"/>
+      <!-- Manzanas / bloques (relleno sutil) -->
+      <rect x="240" y="200" width="100" height="130" rx="4" fill="rgba(255,255,255,0.015)"/>
+      <rect x="480" y="200" width="100" height="130" rx="4" fill="rgba(255,255,255,0.015)"/>
+      <rect x="240" y="370" width="100" height="130" rx="4" fill="rgba(255,255,255,0.015)"/>
+      <rect x="480" y="370" width="100" height="130" rx="4" fill="rgba(255,255,255,0.015)"/>
+      <rect x="740" y="200" width="100" height="130" rx="4" fill="rgba(255,255,255,0.015)"/>
+      <rect x="740" y="370" width="100" height="130" rx="4" fill="rgba(255,255,255,0.015)"/>
+    </svg>
+
+    <!-- Mi ubicación -->
+    <div class="my-location"></div>
+
+    <!-- Pins de servicios -->
+    <div class="map-pin" style="top:26%; left:72%;">
+      <div class="pin-bubble">⛽ Texaco</div>
+    </div>
+    <div class="map-pin" style="top:37%; left:54%;">
+      <div class="pin-bubble orange">🔧 MotoTech</div>
+    </div>
+    <div class="map-pin" style="top:60%; left:30%;">
+      <div class="pin-bubble">⛽ Terpel</div>
+    </div>
+
+    <!-- Barra de búsqueda -->
+    <div class="map-search fade-up stagger-1">
+      <span class="search-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </span>
+      <input type="text" placeholder="Buscar servicios cercanos..."/>
+    </div>
+
+    <!-- Chips de filtro -->
+    <div class="map-filters fade-up stagger-2">
+      <span class="filter-chip active">Gasolineras</span>
+      <span class="filter-chip">Talleres</span>
+      <span class="filter-chip">Parqueaderos</span>
+      <span class="filter-chip">Lavaderos</span>
+    </div>
+
+    <!-- Estado del GPS + tráfico -->
+    <div class="map-status fade-up stagger-2">
+      <div class="status-pill">
+        <span class="dot dot-green"></span>
+        GPS Activo
+      </div>
+      <div class="status-pill" style="color:var(--accent-green);">
+        <span style="font-size:0.9rem;">🟢</span>
+        Tráfico fluido
+      </div>
+    </div>
+
+    <!-- Controles de zoom -->
+    <div class="zoom-controls">
+      <div class="zoom-btn" title="Acercar">+</div>
+      <div class="zoom-btn" title="Alejar">−</div>
+      <div class="zoom-btn" title="Mi ubicación" style="font-size:0.82rem;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <circle cx="12" cy="12" r="10"/>
+          <circle cx="12" cy="12" r="3" fill="var(--accent-cyan)" stroke="none"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ── PANEL NAVEGACIÓN ACTIVA ─────────────── -->
+    <div class="map-bottom fade-up stagger-3" id="nav-strip">
+      <div class="nav-info-card">
+        <div class="nav-direction-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+        <div class="nav-info">
+          <p class="nav-distance">En 200m · Gire a la derecha</p>
+          <p class="nav-street">Hacia Av. Caracas · Bogotá</p>
+        </div>
+        <div style="text-align:right;">
+          <p style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Llegada</p>
+          <p style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent-cyan);">14:25</p>
+        </div>
+      </div>
+
+      <div class="nav-meta">
+        <div class="nav-meta-item">
+          <p class="nav-meta-label">Tráfico</p>
+          <p class="nav-meta-val" style="color:var(--accent-green);">Fluido</p>
+        </div>
+        <div class="nav-meta-item">
+          <p class="nav-meta-label">Distancia</p>
+          <p class="nav-meta-val">1.2 km</p>
+        </div>
+        <div class="nav-meta-item">
+          <p class="nav-meta-label">Tiempo</p>
+          <p class="nav-meta-val">4 min</p>
+        </div>
+      </div>
+
+      <button class="btn-end-route" onclick="endRoute()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        Finalizar Ruta
+      </button>
+    </div>
+
+    <!-- ── PANEL SERVICIOS CERCANOS ───────────── -->
+    <div class="map-bottom fade-up stagger-3" id="services-strip" style="display:none;">
+      <div class="service-card">
+        <div class="service-icon" style="color:var(--accent-orange);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+          </svg>
+        </div>
+        <div class="service-info">
+          <strong>Taller MotoTech</strong>
+          <span>Calle 63 #13-45, Bogotá · Abierto · 500m</span>
+        </div>
+        <span class="service-rating">⭐ 4.8</span>
+      </div>
+      <div class="service-card">
+        <div class="service-icon" style="color:var(--accent-cyan);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20">
+            <path d="M3 22V8l6-6h8l4 4v16"/>
+          </svg>
+        </div>
+        <div class="service-info">
+          <strong>Estación Terpel Av. 80</strong>
+          <span>Av. Calle 80, Bogotá · Abierto · 1.2km</span>
+        </div>
+        <span class="service-rating">⭐ 4.5</span>
+      </div>
+      <div class="service-card">
+        <div class="service-icon" style="color:var(--accent-cyan);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20">
+            <path d="M3 22V8l6-6h8l4 4v16"/>
+          </svg>
+        </div>
+        <div class="service-info">
+          <strong>Estación Texaco NQS</strong>
+          <span>Av. NQS, Bogotá · Abierto · 2.1km</span>
+        </div>
+        <span class="service-rating">⭐ 4.3</span>
+      </div>
+    </div>
+
+  </div><!-- /map-container -->
+
+  <!-- Sidebar / Bottom Nav -->
+  <nav class="bottom-nav" style="background:rgba(14,18,24,0.98);">
+    <a href="home.html"    class="nav-item" id="nav-home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      Inicio
+    </a>
+    <a href="garage.html"  class="nav-item" id="nav-garage">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <rect x="2" y="3" width="20" height="14" rx="2"/>
+        <path d="M8 21h8M12 17v4"/>
+      </svg>
+      Garaje
+    </a>
+    <a href="map.html"     class="nav-item active" id="nav-map">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+        <line x1="8" y1="2" x2="8" y2="18"/>
+        <line x1="16" y1="6" x2="16" y2="22"/>
+      </svg>
+      Mapa
+    </a>
+    <a href="history.html" class="nav-item" id="nav-history">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      Historial
+    </a>
+    <a href="profile.html" class="nav-item" id="nav-profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      Perfil
+    </a>
+  </nav>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/nav.js"></script>
+  <script>
+    function endRoute() {
+      document.getElementById('nav-strip').style.display = 'none';
+      document.getElementById('services-strip').style.display = 'flex';
+    }
+
+    document.querySelectorAll('.filter-chip').forEach(c => {
+      c.addEventListener('click', () => {
+        document.querySelectorAll('.filter-chip').forEach(x => x.classList.remove('active'));
+        c.classList.add('active');
+      });
+    });
+
+    // Zoom interactivo simulado
+    let zoomLevel = 1;
+    const mapBg = document.querySelector('.map-bg');
+    document.querySelectorAll('.zoom-btn').forEach((btn, i) => {
+      btn.addEventListener('click', () => {
+        if (i === 0) zoomLevel = Math.min(zoomLevel + 0.15, 2);
+        if (i === 1) zoomLevel = Math.max(zoomLevel - 0.15, 0.6);
+        if (i === 2) zoomLevel = 1;
+        document.querySelector('.map-roads').style.transform = `scale(${zoomLevel})`;
+        document.querySelector('.map-roads').style.transformOrigin = 'center center';
+      });
+    });
+  </script>
+</body>
+</html>
