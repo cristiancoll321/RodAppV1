@@ -13,31 +13,32 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
-    @Column(unique = true, nullable = true)
+    @Column(unique = true, nullable = false)
     private String email;
+    @Column(nullable = false)
     private String passwordHash;
-    private Boolean estado;
+    @Column(nullable = false)
+    private Boolean estado = true;
 
     // Relación con motocicletas
     @JsonManagedReference
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Motocicleta> motocicletas;
 
-    public Usuario(Long id, String nombre, String email, String passwordHash, List<Motocicleta> motocicletas) {
-        this.id = id;
+    public Usuario(String nombre, String email, String passwordHash, Boolean estado) {
         this.nombre = nombre;
         this.email = email;
         this.passwordHash = passwordHash;
-        this.motocicletas = motocicletas;
+        this.estado = estado;
     }
 
-    public Usuario(String passwordHash, List<Motocicleta> motocicletas, String email, String nombre) {
-        this.passwordHash = passwordHash;
-        this.motocicletas = motocicletas;
-        this.email = email;
-        this.nombre = nombre;
+    public Usuario(String nombre, String email, String passwordHash) {
     }
 
+    public Usuario() {
+    }
+
+    //Getters y Setters
     public Long getId() {
         return id;
     }
