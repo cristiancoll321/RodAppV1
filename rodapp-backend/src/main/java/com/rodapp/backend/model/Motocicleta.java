@@ -41,9 +41,29 @@ public class Motocicleta {
 
 
 
+    /**
+     * Constructor vacío (sin argumentos).
+     * Requerido por JPA (Java Persistence API) para poder instanciar el objeto
+     * cuando recupera datos desde la base de datos antes de poblar sus campos.
+     */
     public Motocicleta() {
     }
 
+    /**
+     * Constructor completo con ID.
+     * Se utiliza principalmente cuando ya tenemos una entidad existente (por ejemplo, al actualizar)
+     * y queremos mapear todos sus campos, incluido su identificador único.
+     * 
+     * @param id Identificador único en la base de datos.
+     * @param kmActual Kilometraje actual de la moto.
+     * @param color Color del vehículo.
+     * @param tipoCombustible Gasolina, Eléctrica, etc.
+     * @param cilindrada Capacidad del motor en CC.
+     * @param placa Matrícula única.
+     * @param modelo Nombre o referencia del modelo.
+     * @param usuario Objeto Usuario al que pertenece la moto (Relación ManyToOne).
+     * @param marca Fabricante de la moto.
+     */
     public Motocicleta(Long id, Double kmActual, String color, String tipoCombustible, Integer cilindrada, String placa, String modelo, Usuario usuario, String marca) {
         this.id = id;
         this.kmActual = kmActual;
@@ -56,6 +76,20 @@ public class Motocicleta {
         this.marca = marca;
     }
 
+    /**
+     * Constructor sin ID.
+     * Ideal para el proceso de creación (POST). El ID no se envía porque la base de datos
+     * lo genera automáticamente (GenerationType.IDENTITY).
+     * 
+     * @param usuario Dueño de la moto.
+     * @param marca Marca del fabricante.
+     * @param modelo Referencia del modelo.
+     * @param placa Matrícula.
+     * @param cilindrada Cilindraje.
+     * @param tipoCombustible Tipo de energía.
+     * @param color Color estético.
+     * @param kmActual Recorrido inicial.
+     */
     public Motocicleta(Usuario usuario, String marca, String modelo, String placa, Integer cilindrada, String tipoCombustible, String color, Double kmActual) {
         this.usuario = usuario;
         this.marca = marca;
