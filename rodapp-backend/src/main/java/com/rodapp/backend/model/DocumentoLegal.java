@@ -41,6 +41,7 @@ public class DocumentoLegal {
     }
 
 
+    //Gettters and Setter
     public Long getId() {
         return id;
     }
