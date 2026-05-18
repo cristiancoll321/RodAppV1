@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UsuarioService {
 
@@ -16,6 +18,11 @@ public class UsuarioService {
 
     @Autowired
     private PasswordEncoder passwordEncoder; //Inyectamos el encoder
+
+    //Obtine a todos los usuarios
+    public List<Usuario> getUsuarios(){
+        return this.usuarioRepository.findAll();
+    }
 
     //Registro: Recibe contraseña plana, guarda hash
     public Usuario registrar(RegistroRequestDTO registroDTO) {
@@ -72,4 +79,23 @@ public class UsuarioService {
     }
 
     //Bucar por Id
+    public Usuario buscarPorId (Long id){
+        return usuarioRepository.findById(id)
+                .orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
+    }
+
+    //Actualizar
+    public Usuario actualizar(Long id, RegistroRequestDTO dto){
+        Usuario usuario = buscarPorId(id);
+        usuario.setNombre(dto.getNombre());
+        usuario.setEmail(dto.getEmail());
+        return usuarioRepository.save(usuario);
+    }
+
+    //Eliminar
+    public Usuario eliminar (Long id) {
+        Usuario usuario = buscarPorId(id);
+        usuarioRepository.delete(usuario);
+        return usuario;
+    }
 }
