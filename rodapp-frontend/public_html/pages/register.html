@@ -283,6 +283,7 @@
   </div>
 </div>
 
+<script src="../js/auth.js"></script>
 <script src="../js/main.js"></script>
 <script>
   function togglePass(id) {
@@ -343,10 +344,44 @@
     document.getElementById('dot-1').className='step-dot active';
     document.getElementById('dot-2').className='step-dot';
   }
-  function handleRegister() {
+  async function handleRegister() {
     if (!document.getElementById('terms').checked) { alert('Debes aceptar los términos y condiciones.'); return; }
-    document.getElementById('form-screen').style.display='none';
-    document.getElementById('success-screen').style.display='flex';
+    
+    const nombre = document.getElementById('inp-name').value.trim();
+    const email = document.getElementById('inp-email').value.trim();
+    const password = document.getElementById('inp-pass').value;
+    
+    const API_BASE = 'http://localhost:8080/api';
+    
+    try {
+      const response = await fetch(`${API_BASE}/usuarios/registrar`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nombre: nombre,
+          email: email,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('usuario', JSON.stringify(data));
+        document.getElementById('form-screen').style.display='none';
+        document.getElementById('success-screen').style.display='flex';
+        setTimeout(() => {
+          window.location.href = 'home.html';
+        }, 2000);
+      } else {
+        alert(data.message || 'Error al registrar. Intenta con otro correo.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error de conexión con el servidor.');
+    }
   }
   function openModal(id) { document.getElementById(id).classList.add('open'); }
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }

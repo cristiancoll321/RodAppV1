@@ -11,156 +11,162 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 40px 24px;
+      align-items: center;
+      padding: 20px;
       position: relative;
       overflow: hidden;
     }
 
-    /* Fondo decorativo */
     .login-wrapper::before {
       content: '';
       position: absolute;
-      top: -120px; right: -80px;
-      width: 300px; height: 300px;
-      background: radial-gradient(circle, rgba(0,212,200,0.12) 0%, transparent 70%);
+      top: -100px; right: -80px;
+      width: 250px; height: 250px;
+      background: radial-gradient(circle, rgba(0,212,200,0.1) 0%, transparent 70%);
       pointer-events: none;
     }
     .login-wrapper::after {
       content: '';
       position: absolute;
       bottom: -80px; left: -60px;
-      width: 240px; height: 240px;
+      width: 220px; height: 220px;
       background: radial-gradient(circle, rgba(255,107,53,0.08) 0%, transparent 70%);
       pointer-events: none;
     }
 
-    .login-top {
-      margin-bottom: 48px;
+    .login-container {
+      width: 100%;
+      max-width: 340px;
+      position: relative;
+      z-index: 1;
     }
 
-    .logo-sub {
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      margin-top: 6px;
+    .login-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
 
     .welcome-text {
-      font-family: var(--font-display);
-      font-size: 1.6rem;
-      font-weight: 700;
+      font-size: 1.2rem;
+      font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 4px;
+      margin-top: 16px;
     }
 
-    .login-form { position: relative; z-index: 1; }
-
-    .forgot-link {
-      display: block;
-      text-align: right;
-      font-size: 0.8rem;
-      color: var(--accent-cyan);
-      text-decoration: none;
-      margin-top: -8px;
-      margin-bottom: 24px;
-    }
-
-    .btn-google {
+    .login-form {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 13px;
-      background: var(--bg-surface);
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .form-group input {
+      padding: 10px 12px;
+      font-size: 0.9rem;
       border: 1px solid var(--border);
       border-radius: var(--radius);
+      background: var(--bg-surface);
       color: var(--text-primary);
-      font-family: var(--font-body);
+    }
+
+    .form-group input:focus {
+      border-color: var(--accent-cyan);
+      outline: none;
+    }
+
+    .error-msg {
+      font-size: 0.7rem;
+      color: var(--accent-red);
+      display: none;
+      margin-top: 2px;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+
+    .btn-login {
+      padding: 11px;
+      margin-top: 8px;
       font-size: 0.9rem;
       font-weight: 500;
-      cursor: pointer;
-      width: 100%;
-      text-decoration: none;
-      transition: border-color 0.2s;
     }
-    .btn-google:hover { border-color: rgba(255,255,255,0.2); }
-
-    .btn-google svg { width: 20px; height: 20px; }
 
     .register-link {
       text-align: center;
-      margin-top: 24px;
-      font-size: 0.85rem;
+      margin-top: 16px;
+      font-size: 0.8rem;
       color: var(--text-secondary);
     }
+
     .register-link a {
       color: var(--accent-cyan);
       text-decoration: none;
       font-weight: 500;
     }
 
-    .year-tag {
-      position: absolute;
-      bottom: 28px; left: 50%;
-      transform: translateX(-50%);
-      font-family: var(--font-mono);
-      font-size: 0.65rem;
+    .loading {
+      display: none;
+      text-align: center;
+      font-size: 0.8rem;
       color: var(--text-muted);
-      letter-spacing: 0.2em;
-      white-space: nowrap;
+      margin-top: 12px;
+    }
+
+    .loading.show {
+      display: block;
     }
   </style>
 </head>
 <body>
   <div class="login-wrapper">
-    <div class="login-top fade-up stagger-1">
-      <div class="logo">Rod<span>App</span></div>
-      <div class="logo-sub">Bogotá · Colombia</div>
-    </div>
-
-    <div class="login-form">
-      <p class="welcome-text fade-up stagger-2">Bienvenido de nuevo</p>
-
-      <div class="form-group fade-up stagger-3">
-        <label>Correo electrónico</label>
-        <input type="email" placeholder="ejemplo@correo.com"/>
+    <div class="login-container">
+      <div class="login-header fade-up stagger-1">
+        <div class="logo">Rod<span>App</span></div>
+        <p class="welcome-text">Bienvenido</p>
       </div>
 
-      <div class="form-group fade-up stagger-3">
-        <label>Contraseña</label>
-        <input type="password" placeholder="••••••••"/>
-      </div>
+      <form class="login-form fade-up stagger-2" id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" placeholder="ejemplo@correo.com" required/>
+          <span class="error-msg" id="emailError"></span>
+        </div>
 
-      <a href="#" class="forgot-link fade-up stagger-3">¿Olvidaste tu contraseña?</a>
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" placeholder="Contraseña" required/>
+          <span class="error-msg" id="passwordError"></span>
+        </div>
 
-      <a href="pages/home.html" class="btn btn-primary fade-up stagger-4" style="margin-bottom: 16px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-        Iniciar Sesión
-      </a>
+        <button type="submit" class="btn btn-primary btn-login">Iniciar Sesión</button>
+        <div class="loading" id="loading">Cargando...</div>
+      </form>
 
-      <div class="divider-text fade-up stagger-4">O inicia con</div>
-
-      <a href="pages/home.html" class="btn-google fade-up stagger-5">
-        <!-- Google icon SVG -->
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-        </svg>
-        Continuar con Google
-      </a>
-
-      <p class="register-link fade-up stagger-5">
-        ¿No tienes cuenta? <a href="pages/register.html">Regístrate</a>
+      <p class="register-link fade-up stagger-3">
+        ¿No tienes cuenta? <a href="pages/register.html">Regístrate aquí</a>
       </p>
     </div>
-
-    <span class="year-tag">R o d A p p &nbsp; B o g o t á &nbsp; 2 0 2 4</span>
   </div>
 
+  <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
