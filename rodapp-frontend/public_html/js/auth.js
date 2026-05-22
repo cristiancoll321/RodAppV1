@@ -3,7 +3,7 @@
 //  Autenticación con API
 // =============================================
 
-const API_BASE = 'http://localhost:8080/api/'; // Cambiar según tu configuración
+const API_BASE = 'http://localhost:8080/api'; // Cambiar según tu configuración
 
 // ── LOGIN ───────────────────────────────────
 async function handleLogin(event) {

@@ -431,6 +431,129 @@ select option { background: var(--bg-surface); }
   margin: 0 auto 20px;
 }
 
+/* ── LOGIN ──────────────────────────────────── */
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-wrapper::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -80px;
+  width: 250px; height: 250px;
+  background: radial-gradient(circle, rgba(0,212,200,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.login-wrapper::after {
+  content: '';
+  position: absolute;
+  bottom: -80px; left: -60px;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(255,107,53,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 340px;
+  position: relative;
+  z-index: 1;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.welcome-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 16px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.form-group input {
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.form-group input:focus {
+  border-color: var(--accent-cyan);
+  outline: none;
+}
+
+.error-msg {
+  font-size: 0.7rem;
+  color: var(--accent-red);
+  display: none;
+  margin-top: 2px;
+}
+
+.error-msg.show {
+  display: block;
+}
+
+.btn-login {
+  padding: 11px;
+  margin-top: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.register-link {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.register-link a {
+  color: var(--accent-cyan);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.loading {
+  display: none;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+}
+
+.loading.show {
+  display: block;
+}
 
 /* ════════════════════════════════════════════════════════
    RESPONSIVE DESKTOP & TABLET
