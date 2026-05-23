@@ -6,6 +6,7 @@
 - **Estado actual:** 
   - CRUD de `Motocicleta`: Completado.
   - CRUD de `Mantenimiento`: Completado.
+- **Próximo paso:** Iniciar implementación de CRUD `Tanqueada`.
 - **Configuración Local:** 
   - OS: Win32
   - DB: MySQL (rodapp_db)

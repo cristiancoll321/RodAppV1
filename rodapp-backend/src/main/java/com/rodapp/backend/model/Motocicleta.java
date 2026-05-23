@@ -9,7 +9,7 @@ import java.util.List;
 
 @Entity
 @Table
-public class Motocicleta {
+public class @@Motocicleta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

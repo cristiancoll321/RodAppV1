@@ -127,69 +127,62 @@ function loadProfileData() {
 }
 
 // ── Cargar motos del usuario ────────────────
-function loadGarageMotos() {
+async function loadGarageMotos() {
   const usuario = getUser();
   const container = document.getElementById('motos-container');
   const emptyGarage = document.getElementById('empty-garage');
-  
+
   if (!container || !emptyGarage) return;
-  
-  // Si el usuario no tiene ID, mostrar garaje vacío
+
   if (!usuario.id) {
     container.style.display = 'none';
     emptyGarage.style.display = 'flex';
     return;
   }
-  
-  // Simulado: en producción sería una llamada al API
-  // const response = await fetch(`${API_BASE}/motos/usuario/${usuario.id}`);
-  // const motos = await response.json();
-  
-  // Para demostración, motos vacío (Oscar Andrade no tiene motos)
-  const motos = [];
-  
-  if (motos.length === 0) {
-    container.style.display = 'none';
-    emptyGarage.style.display = 'flex';
-  } else {
-    container.style.display = 'block';
-    emptyGarage.style.display = 'none';
-    container.innerHTML = motos.map(moto => `
-      <div class="garage-moto-card fade-up stagger-2" onclick="window.location='moto-detail.html?id=${moto.id}'" style="cursor:pointer;">
-        <div class="moto-header">
-          <div class="moto-info">
-            <strong>${moto.marca} ${moto.modelo}</strong>
-            <span>Placa: ${moto.placa} · ${moto.cilindrada || 'N/A'}cc</span>
+
+  try {
+    const res = await fetch(`http://localhost:8080/api/motos/usuario/${usuario.id}`);
+    const motos = await res.json();
+
+    if (motos.length === 0) {
+      container.style.display = 'none';
+      emptyGarage.style.display = 'flex';
+    } else {
+      container.style.display = 'block';
+      emptyGarage.style.display = 'none';
+
+      container.innerHTML = motos.map(moto => `
+        <div class="garage-moto-card fade-up stagger-2"
+             onclick="window.location='moto-detail.html?id=${moto.id}'"
+             style="cursor:pointer;">
+          <div class="moto-header">
+            <div class="moto-info">
+              <strong>${moto.marca} ${moto.modelo}</strong>
+              <span>Placa: ${moto.placa}</span>
+            </div>
+            <span class="badge badge-cyan">Verificado</span>
           </div>
-          <span class="badge badge-cyan">Verificado</span>
+
+          <div style="display:flex; gap:20px; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
+            <div>
+              <p class="stat-val">${moto.cilindrada || 'N/A'} cc</p>
+              <p class="stat-lbl">Cilindraje</p>
+            </div>
+            <div>
+              <p class="stat-val">${moto.color || 'N/A'}</p>
+              <p class="stat-lbl">Color</p>
+            </div>
+            <div>
+              <p class="stat-val">${moto.kmActual || 0} km</p>
+              <p class="stat-lbl">Odómetro</p>
+            </div>
+          </div>
         </div>
-        <div style="display:flex; gap:20px; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
-          <div>
-            <p style="font-family:var(--font-display); font-size:1rem; font-weight:700; color:var(--accent-cyan);">N/A</p>
-            <p style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Modelo</p>
-          </div>
-          <div>
-            <p style="font-family:var(--font-display); font-size:1rem; font-weight:700;">${moto.color || 'N/A'}</p>
-            <p style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Color</p>
-          </div>
-          <div>
-            <p style="font-family:var(--font-display); font-size:1rem; font-weight:700;">${moto.kmActual?.toLocaleString() || '0'} km</p>
-            <p style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Odómetro</p>
-          </div>
-        </div>
-      </div>
-    `).join('');
-  }
-  
-  // Actualizar avatar
-  const avatarEl = document.getElementById('garage-avatar');
-  if (avatarEl && usuario.name) {
-    const iniciales = usuario.name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase();
-    avatarEl.textContent = iniciales;
+      `).join('');
+    }
+
+  } catch (error) {
+    console.error("Error cargando motos:", error);
   }
 }
 
