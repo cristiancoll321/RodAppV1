@@ -9,7 +9,7 @@ const API_BASE = 'http://localhost:8080/api'; // Cambiar según tu configuració
 async function handleLogin(event) {
   event.preventDefault();
 
-  const email = document.getElementById('email').value.trim();
+  let email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
 
   // Validar campos
@@ -18,8 +18,11 @@ async function handleLogin(event) {
     return;
   }
 
+  // Convertir a minúsculas ANTES de validar
+  email = cleanEmail(email);
+
   if (!isValidEmail(email)) {
-    showError('email', 'Correo inválido');
+    showError('email', 'Correo inválido o contiene doble @');
     return;
   }
 
@@ -65,7 +68,7 @@ async function handleRegister(event) {
   event?.preventDefault();
 
   const nombre = document.getElementById('inp-name')?.value.trim();
-  const email = document.getElementById('inp-email')?.value.trim();
+  let email = document.getElementById('inp-email')?.value.trim();
   const password = document.getElementById('inp-pass')?.value;
   const confirm = document.getElementById('inp-confirm')?.value;
 
@@ -75,16 +78,28 @@ async function handleRegister(event) {
     return false;
   }
 
+  // VALIDACIÓN NOMBRE: Solo letras, espacios y tildes, 3-50 chars
+  if (!isValidName(nombre)) {
+    showRegisterError('Nombre inválido (3-50 caracteres, solo letras y espacios)');
+    return false;
+  }
+
+  // VALIDACIÓN EMAIL: Formato correcto y no doble @
   if (!isValidEmail(email)) {
-    showRegisterError('Correo inválido');
+    showRegisterError('Correo inválido (ejemplo: usuario@dominio.com)');
     return false;
   }
 
+  // Convertir a minúsculas antes de enviar
+  email = cleanEmail(email);
+
+  // VALIDACIÓN CONTRASEÑA: Mínimo 8 caracteres
   if (password.length < 8) {
-    showRegisterError('Contraseña mínimo 8 caracteres');
+    showRegisterError('La contraseña debe tener al menos 8 caracteres');
     return false;
   }
 
+  // VALIDACIÓN COINCIDENCIA
   if (password !== confirm) {
     showRegisterError('Las contraseñas no coinciden');
     return false;
@@ -101,7 +116,7 @@ async function handleRegister(event) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        nombre: nombre,
+        nombre: capitalizeNameProperly(nombre),
         email: email,
         password: password,
       }),
@@ -132,8 +147,52 @@ function handleLogout() {
 }
 
 // ── HELPERS ─────────────────────────────────
+// ✓ VALIDAR EMAIL - Sin doble @, formato correcto
 function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!email) return false;
+  // Contar el número de @ - debe ser exactamente 1
+  const atCount = (email.match(/@/g) || []).length;
+  if (atCount !== 1) return false;
+  // Formato: algo@algo.algo (más restrictivo)
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailRegex.test(email.toLowerCase());
+}
+
+// ✓ VALIDAR NOMBRE - Solo letras, espacios, tildes (á,é,í,ó,ú,ñ)
+function isValidName(name) {
+  if (!name || name.length < 3 || name.length > 50) return false;
+  // Solo letras (mayúsculas, minúsculas), tildes y espacios
+  const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,50}$/;
+  return nameRegex.test(name);
+}
+
+// ✓ VALIDAR CONTRASEÑA - Mínimo 8 caracteres
+function isValidPassword(password) {
+  return password && password.length >= 8;
+}
+
+// ✓ VERIFICAR QUE LAS CONTRASEÑAS COINCIDAN
+function passwordsMatch(password, confirmPassword) {
+  return password === confirmPassword && isValidPassword(password);
+}
+
+// ✓ LIMPIAR EMAIL - Convertir a minúsculas y trimear
+function cleanEmail(email) {
+  return email.trim().toLowerCase();
+}
+
+// ✓ LIMPIAR NOMBRE - Trimear espacios extras
+function cleanName(name) {
+  return name.trim();
+}
+
+// ✓ CAPITALIZAR NOMBRE - Primera letra de cada palabra en mayúscula
+function capitalizeNameProperly(name) {
+  return name
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 }
 
 function showError(fieldId, message) {

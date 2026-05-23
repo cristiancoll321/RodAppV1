@@ -69,4 +69,8 @@ public class MantenimientoService {
         Mantenimiento mantenimiento = getMantenimientoPorId(id);
         mantenimientoRepository.delete(mantenimiento);
     }
+
+    public List<Mantenimiento> obtenerPorMoto(Long motoId) {
+        return mantenimientoRepository.findByMotocicletaId(motoId);
+    }
 }

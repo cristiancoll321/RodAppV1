@@ -923,25 +923,6 @@ select option { background: var(--bg-surface); }
 }
 
 /* ══════════════════════════════════════════════════════
-   MAPA — Full screen respetando sidebar
-══════════════════════════════════════════════════════ */
-@media (min-width: 768px) {
-  .map-container {
-    margin-left: 0;
-    width: 100%;
-    height: 100vh;
-  }
-
-  /* Buscador centrado sobre el mapa */
-  .map-search {
-    left: 16px; right: 16px;
-    max-width: 500px;
-  }
-
-  .map-bottom { max-width: 500px; }
-}
-
-/* ══════════════════════════════════════════════════════
    PÁGINAS SIN SIDEBAR (login, register, splash)
    → body vuelve a centrado
 ══════════════════════════════════════════════════════ */

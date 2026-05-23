@@ -56,6 +56,11 @@ public class MantenimientoController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/moto/{motoId}")
+    public List<Mantenimiento> obtenerPorMoto(@PathVariable Long motoId) {
+        return mantenimientoService.obtenerPorMoto(motoId);
+    }
+
 
 
 }
