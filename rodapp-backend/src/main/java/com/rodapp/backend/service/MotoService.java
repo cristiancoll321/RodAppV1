@@ -1,6 +1,8 @@
 package com.rodapp.backend.service;
 
 import com.rodapp.backend.model.Motocicleta;
+import com.rodapp.backend.model.Usuario;
+import com.rodapp.backend.repository.UsuarioRepository;
 import com.rodapp.backend.repository.MotoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,12 @@ import java.util.List;
 public class MotoService {
     @Autowired
     private MotoRepository motoRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+
+
 
 
     /**
@@ -30,8 +38,22 @@ public class MotoService {
      * @return La motocicleta guardada con su ID.
      */
     public Motocicleta registrar(Motocicleta moto){
+        //Validar que venga usuario
+        if (moto.getUsuario() == null || moto.getUsuario().getId() == null) {
+            throw new RuntimeException("La moto debe tener un usuario");
+        }
+
+        //Buscar usuario real en BD
+        Usuario usuario = usuarioRepository.findById(moto.getUsuario().getId())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Asignar usuario gestionado por JPA
+        moto.setUsuario(usuario);
+
         return motoRepository.save(moto);
     }
+
+
 
     /**
      * Busca una motocicleta específica por su identificador único.
@@ -68,6 +90,10 @@ public class MotoService {
         moto.setKmActual(motoDetalles.getKmActual());
 
         return motoRepository.save(moto);
+    }
+
+    public List<Motocicleta> getMotosPorUsuario(Long usuarioId) {
+        return motoRepository.findByUsuarioId(usuarioId);
     }
 
     /**

@@ -1,6 +1,8 @@
 package com.rodapp.backend.service;
 
+import com.rodapp.backend.model.Motocicleta;
 import com.rodapp.backend.model.Tanqueada;
+import com.rodapp.backend.repository.MotoRepository;
 import com.rodapp.backend.repository.TanqueadaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,23 @@ public class TanqueadaService {
 
     @Autowired
     private TanqueadaRepository tanqueadaRepository;
+
+    @Autowired
+    private MotoRepository motoRepository;
+
+    public Tanqueada crear(Tanqueada t) {
+
+        if (t.getMotocicleta() == null || t.getMotocicleta().getId() == null) {
+            throw new RuntimeException("La tanqueada debe tener moto");
+        }
+
+        Motocicleta moto = motoRepository.findById(t.getMotocicleta().getId())
+                .orElseThrow(() -> new RuntimeException("Moto no encontrada"));
+
+        t.setMotocicleta(moto);
+
+        return tanqueadaRepository.save(t);
+    }
 
     /**
       * Descripción: Obtiene el historial de todas las

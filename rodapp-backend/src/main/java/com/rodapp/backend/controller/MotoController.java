@@ -52,6 +52,13 @@ public class MotoController {
         return ResponseEntity.ok(motoService.getMotoPorId(id));
     }
 
+    @GetMapping("/usuario/{usuarioId}")
+    public List<Motocicleta> getPorUsuario(@PathVariable Long usuarioId) {
+        return motoService.getMotosPorUsuario(usuarioId);
+    }
+
+
+
     /**
      * ENDPOINT: PUT /api/motos/{id}
      * Propósito: Modificar datos de una moto ya existente.

@@ -40,14 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// ── Simular autenticación ───────────────────
-const USER = {
-  name: 'Carlos Rodríguez',
-  email: 'carlos.rod@example.com',
-  moto: 'Yamaha MT-09 (2023)',
-  plate: 'BGT-123',
-  km: 12500,
-};
 
 function getUser() { 
   // Obtener usuario de localStorage si existe (viene del login)
@@ -131,12 +123,14 @@ async function loadGarageMotos() {
   const usuario = getUser();
   const container = document.getElementById('motos-container');
   const emptyGarage = document.getElementById('empty-garage');
+  const docsContainer = document.getElementById('garage-docs-container');
 
   if (!container || !emptyGarage) return;
 
   if (!usuario.id) {
     container.style.display = 'none';
     emptyGarage.style.display = 'flex';
+    if (docsContainer) docsContainer.style.display = 'none';
     return;
   }
 
@@ -147,9 +141,11 @@ async function loadGarageMotos() {
     if (motos.length === 0) {
       container.style.display = 'none';
       emptyGarage.style.display = 'flex';
+      if (docsContainer) docsContainer.style.display = 'none';
     } else {
       container.style.display = 'block';
       emptyGarage.style.display = 'none';
+      if (docsContainer) docsContainer.style.display = 'block';
 
       container.innerHTML = motos.map(moto => `
         <div class="garage-moto-card fade-up stagger-2"
@@ -183,6 +179,7 @@ async function loadGarageMotos() {
 
   } catch (error) {
     console.error("Error cargando motos:", error);
+    if (docsContainer) docsContainer.style.display = 'none';
   }
 }
 
@@ -225,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Cargar datos específicos según la página
   if (path === 'home.html') {
     loadUserGreeting();
+    loadHomeMoto();
   } else if (path === 'profile.html') {
     loadProfileData();
   } else if (path === 'garage.html') {
@@ -234,3 +232,101 @@ document.addEventListener('DOMContentLoaded', () => {
   initFabMenu();
   updateNotifBadge();
 });
+
+
+async function loadHomeMoto() {
+  const usuario = getUser();
+  const container = document.getElementById('home-moto-container');
+  const extraSections = document.getElementById('home-extra-sections');
+
+  if (!container) return;
+
+  if (!usuario.id) {
+    container.innerHTML = `<p>No hay usuario logueado</p>`;
+    if (extraSections) extraSections.style.display = 'none';
+    disableQuickActions(true);
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://localhost:8080/api/motos/usuario/${usuario.id}`);
+    const motos = await res.json();
+
+    // 🚫 SIN MOTOS
+    if (motos.length === 0) {
+      container.innerHTML = `
+        <div style="padding:40px 20px; text-align:center; background: linear-gradient(135deg, #111c24 0%, #0d1a1f 100%); border: 1px solid var(--border); border-radius: var(--radius-lg); margin: 20px 16px; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48" style="color: var(--accent-cyan); opacity: 0.5;">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+          </svg>
+          <div>
+            <p style="font-size:1.1rem; font-weight: 600; color:var(--text-primary); margin-bottom: 8px;">
+              Aún no tienes motocicletas registradas
+            </p>
+            <p style="font-size:0.85rem; color:var(--text-muted);">
+              Comienza registrando tu primera motocicleta para acceder a todas las funciones
+            </p>
+          </div>
+          <a href="moto-register.html" style="display: inline-block; background: var(--accent-cyan); color: #000; padding: 12px 28px; border-radius: var(--radius); text-decoration: none; font-weight: 600; font-size: 0.95rem; margin-top: 8px; transition: opacity 0.2s;">
+            + Registrar motocicleta
+          </a>
+        </div>
+      `;
+      if (extraSections) extraSections.style.display = 'none';
+      disableQuickActions(true);
+      return;
+    }
+
+    // ✅ CON MOTO (tomamos la primera por ahora)
+    const moto = motos[0];
+
+    container.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <h3 class="moto-name">${moto.marca} ${moto.modelo}</h3>
+          <p class="moto-plate">${moto.placa || 'Sin placa'}</p>
+        </div>
+        <span class="badge badge-cyan">Activa</span>
+      </div>
+
+      <div class="moto-stats">
+        <div class="moto-stat">
+          <p class="moto-stat-val">${moto.kmActual || 0}</p>
+          <p class="moto-stat-label">Kilómetros</p>
+        </div>
+        <div class="moto-stat">
+          <p class="moto-stat-val">${moto.cilindrada || 'N/A'}</p>
+          <p class="moto-stat-label">Cilindraje</p>
+        </div>
+        <div class="moto-stat">
+          <p class="moto-stat-val">OK</p>
+          <p class="moto-stat-label">Estado</p>
+        </div>
+      </div>
+    `;
+    
+    if (extraSections) extraSections.style.display = 'block';
+    disableQuickActions(false);
+  } catch (error) {
+    console.error("Error cargando moto en home:", error);
+    if (extraSections) extraSections.style.display = 'none';
+    disableQuickActions(true);
+  }
+}
+
+// ── Habilitar/deshabilitar botones de acciones rápidas ──────
+function disableQuickActions(disabled) {
+  const quickBtns = document.querySelectorAll('.quick-btn');
+  quickBtns.forEach(btn => {
+    if (disabled) {
+      btn.style.opacity = '0.4';
+      btn.style.pointerEvents = 'none';
+      btn.style.cursor = 'not-allowed';
+    } else {
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+      btn.style.cursor = 'pointer';
+    }
+  });
+}
+

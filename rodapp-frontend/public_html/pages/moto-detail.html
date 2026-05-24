@@ -147,82 +147,84 @@
     <div class="stats-grid fade-up stagger-2">
       <div class="stat-card">
         <p class="stat-lbl">Odómetro</p>
-        <p class="stat-val" style="color:var(--accent-cyan);">12,500 <span style="font-size:0.8rem;">km</span></p>
+        <p class="stat-val" style="color:var(--accent-cyan);"><span id="stat-km">0</span> <span style="font-size:0.8rem;">km</span></p>
       </div>
       <div class="stat-card">
         <p class="stat-lbl">Próx. aceite</p>
-        <p class="stat-val" style="color:var(--accent-orange);">500 <span style="font-size:0.8rem;">km</span></p>
+        <p class="stat-val" style="color:var(--accent-orange);"><span id="stat-oil">—</span></p>
       </div>
       <div class="stat-card">
         <p class="stat-lbl">Estado legal</p>
-        <p class="stat-val" style="color:var(--accent-green);">Vigente</p>
+        <p class="stat-val" style="color:var(--accent-green);"><span id="stat-legal">—</span></p>
       </div>
       <div class="stat-card">
         <p class="stat-lbl">Mantenimientos</p>
-        <p class="stat-val">4 <span style="font-size:0.8rem;">este año</span></p>
+        <p class="stat-val" id="stat-maintenance">— <span style="font-size:0.8rem;">este año</span></p>
       </div>
     </div>
 
     <!-- Acciones -->
     <div class="action-row fade-up stagger-2">
-      <a href="fuel-register.html" class="btn btn-outline" style="font-size:0.82rem; padding:10px;">
+      <button id="btn-fuel" class="btn btn-outline" style="font-size:0.82rem; padding:10px;" onclick="irAFuelRegister()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 22V8l6-6h8l4 4v16"/></svg>
         Combustible
-      </a>
+      </button>
       <a href="maintenance.html" class="btn btn-outline" style="font-size:0.82rem; padding:10px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
         Mantenimiento
       </a>
-      <a href="map.html" class="btn btn-outline" style="font-size:0.82rem; padding:10px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
-        Mapa
-      </a>
     </div>
 
+    <!-- Tanqueadas -->
+    <p class="section-title fade-up stagger-3">Tanqueadas Registradas</p>
+    <div id="tanqueadas-container" style="margin-bottom:16px;"></div>
+
     <!-- Documentos -->
-    <p class="section-title fade-up stagger-3">Documentos Obligatorios</p>
-    <div class="card" style="padding:0; margin-bottom:16px;" class="fade-up stagger-3">
-      <a href="documents.html?doc=soat" class="doc-row">
-        <div class="doc-row-icon" style="background:rgba(34,197,94,0.1);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="1.8" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        </div>
-        <div class="doc-row-info"><strong>SOAT Digital</strong><span>Vigente hasta Dic 2024</span></div>
-        <div class="doc-row-right"><span class="badge badge-green">Vigente</span></div>
-      </a>
-      <a href="documents.html?doc=rtm" class="doc-row">
-        <div class="doc-row-icon" style="background:rgba(255,107,53,0.1);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="1.8" width="16" height="16"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        </div>
-        <div class="doc-row-info"><strong>RTM</strong><span>Vence en 5 días</span></div>
-        <div class="doc-row-right"><span class="badge badge-orange">Expira pronto</span></div>
-      </a>
-      <a href="documents.html?doc=licencia" class="doc-row">
-        <div class="doc-row-icon" style="background:rgba(0,212,200,0.08);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="1.8" width="16" height="16"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        </div>
-        <div class="doc-row-info"><strong>Licencia de Conducción</strong><span>Categoría A2 - Permanente</span></div>
-        <div class="doc-row-right"><span class="badge badge-green">A2</span></div>
-      </a>
-      <a href="documents.html?doc=todo-riesgo" class="doc-row">
-        <div class="doc-row-icon" style="background:rgba(34,197,94,0.08);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="1.8" width="16" height="16"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        </div>
-        <div class="doc-row-info"><strong>Seguro Todo Riesgo</strong><span>Vigente hasta Dic 2024</span></div>
-        <div class="doc-row-right"><span class="badge badge-green">Vigente</span></div>
-      </a>
+    <div id="documents-section">
+      <p class="section-title fade-up stagger-3">Documentos Obligatorios</p>
+      <div class="card" style="padding:0; margin-bottom:16px;" class="fade-up stagger-3">
+        <a href="documents.html?doc=soat" class="doc-row">
+          <div class="doc-row-icon" style="background:rgba(34,197,94,0.1);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="1.8" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="doc-row-info"><strong>SOAT Digital</strong><span>Vigente hasta Dic 2024</span></div>
+          <div class="doc-row-right"><span class="badge badge-green">Vigente</span></div>
+        </a>
+        <a href="documents.html?doc=rtm" class="doc-row">
+          <div class="doc-row-icon" style="background:rgba(255,107,53,0.1);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="1.8" width="16" height="16"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <div class="doc-row-info"><strong>RTM</strong><span>Vence en 5 días</span></div>
+          <div class="doc-row-right"><span class="badge badge-orange">Expira pronto</span></div>
+        </a>
+        <a href="documents.html?doc=licencia" class="doc-row">
+          <div class="doc-row-icon" style="background:rgba(0,212,200,0.08);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="1.8" width="16" height="16"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </div>
+          <div class="doc-row-info"><strong>Licencia de Conducción</strong><span>Categoría A2 - Permanente</span></div>
+          <div class="doc-row-right"><span class="badge badge-green">A2</span></div>
+        </a>
+        <a href="documents.html?doc=todo-riesgo" class="doc-row">
+          <div class="doc-row-icon" style="background:rgba(34,197,94,0.08);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="1.8" width="16" height="16"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="doc-row-info"><strong>Seguro Todo Riesgo</strong><span>Vigente hasta Dic 2024</span></div>
+          <div class="doc-row-right"><span class="badge badge-green">Vigente</span></div>
+        </a>
+      </div>
     </div>
 
     <!-- Especificaciones -->
     <p class="section-title fade-up stagger-4">Detalles del Vehículo</p>
     <div class="card" style="padding:0; margin-bottom:16px;" class="fade-up stagger-4">
-      <div class="spec-row"><span>Marca</span><span>Yamaha</span></div>
-      <div class="spec-row"><span>Modelo</span><span>MT-09</span></div>
-      <div class="spec-row"><span>Año</span><span>2023</span></div>
-      <div class="spec-row"><span>Color</span><span>Cyan Storm</span></div>
-      <div class="spec-row"><span>Cilindraje</span><span>890 cc</span></div>
-      <div class="spec-row"><span>Placa</span><span style="font-family:var(--font-mono);">XYZ 123</span></div>
-      <div class="spec-row"><span>N° Chasis</span><span style="font-family:var(--font-mono);">RN29J1C...</span></div>
-      <div class="spec-row"><span>Odómetro inicial</span><span>0 km</span></div>
+      <div class="spec-row"><span>Marca</span><span id="spec-marca">—</span></div>
+      <div class="spec-row"><span>Modelo</span><span id="spec-modelo">—</span></div>
+      <div class="spec-row"><span>Año</span><span id="spec-ano">—</span></div>
+      <div class="spec-row"><span>Color</span><span id="spec-color">—</span></div>
+      <div class="spec-row"><span>Cilindraje</span><span id="spec-cilindrada">—</span></div>
+      <div class="spec-row"><span>Placa</span><span style="font-family:var(--font-mono);" id="spec-placa">—</span></div>
+      <div class="spec-row"><span>N° Chasis</span><span style="font-family:var(--font-mono);" id="spec-chasis">—</span></div>
+      <div class="spec-row"><span>Odómetro inicial</span><span id="spec-km-inicial">—</span></div>
     </div>
 
     <!-- Botón eliminar moto -->
@@ -236,11 +238,145 @@
 
   <script src="../js/main.js"></script>
   <script>
-    function confirmDelete() {
-      if (confirm('¿Estás seguro de que quieres eliminar esta motocicleta? Esta acción no se puede deshacer.')) {
+    // Validación y carga inicial
+    function initMotoDetail() {
+      const motoId = new URLSearchParams(window.location.search).get('id');
+
+      if (!motoId) {
+        alert('Moto no válida');
+        window.location.href = 'garage.html';
+        return;
+      }
+
+      loadMotoDetail(motoId);
+    }
+
+    // Navegación a fuel-register con ID de moto
+    function irAFuelRegister() {
+      const motoId = new URLSearchParams(window.location.search).get('id');
+      if (motoId) {
+        window.location.href = `fuel-register.html?id=${motoId}`;
+      } else {
+        alert('Error: Moto no válida');
+      }
+    }
+
+    // Carga dinámica de datos
+    async function loadMotoDetail(motoId) {
+      try {
+        const res = await fetch(`http://localhost:8080/api/motos/${motoId}`);
+        if (!res.ok) throw new Error('Moto no encontrada');
+        
+        const moto = await res.json();
+
+        // Actualizar título y subtítulo
+        document.querySelector('.moto-title').textContent = 
+          `${moto.marca || ''} ${moto.modelo || ''}`.trim();
+        document.querySelector('.moto-subtitle').textContent = 
+          `Placa: ${moto.placa || 'Sin placa'}`;
+
+        // Actualizar especificaciones
+        document.getElementById('spec-marca').textContent = moto.marca || 'N/A';
+        document.getElementById('spec-modelo').textContent = moto.modelo || 'N/A';
+        document.getElementById('spec-ano').textContent = moto.ano || 'N/A';
+        document.getElementById('spec-color').textContent = moto.color || 'N/A';
+        document.getElementById('spec-cilindrada').textContent = 
+          moto.cilindrada ? `${moto.cilindrada} cc` : 'N/A';
+        document.getElementById('spec-placa').textContent = moto.placa || 'N/A';
+        document.getElementById('spec-chasis').textContent = moto.numeroChasis || 'N/A';
+        document.getElementById('spec-km-inicial').textContent = 
+          moto.kmInicial ? `${moto.kmInicial} km` : '0 km';
+
+        // Actualizar stats
+        document.getElementById('stat-km').textContent = moto.kmActual || 0;
+        document.getElementById('stat-oil').textContent = moto.proximoMantenimiento || '—';
+        document.getElementById('stat-legal').textContent = moto.estadoLegal || '—';
+        document.getElementById('stat-maintenance').textContent = moto.mantenimientos || '0';
+
+        // Ocultar sección de documentos si no hay documentos
+        const documentsSection = document.getElementById('documents-section');
+        if (documentsSection) {
+          documentsSection.style.display = 
+            (moto.documentos && moto.documentos.length > 0) ? 'block' : 'none';
+        }
+
+      } catch (error) {
+        console.error('Error cargando moto:', error);
+        alert('Error al cargar los detalles de la moto');
         window.location.href = 'garage.html';
       }
     }
+
+    // Eliminar moto (real)
+    async function confirmDelete() {
+      const motoId = new URLSearchParams(window.location.search).get('id');
+
+      if (!motoId) return;
+
+      const confirmar = confirm('¿Eliminar esta motocicleta? Esta acción no se puede deshacer.');
+      if (!confirmar) return;
+
+      try {
+        const res = await fetch(`http://localhost:8080/api/motos/${motoId}`, {
+          method: 'DELETE'
+        });
+
+        if (!res.ok) {
+          throw new Error('No se pudo eliminar');
+        }
+
+        alert('Moto eliminada correctamente ✅');
+        window.location.href = 'garage.html';
+
+      } catch (error) {
+        console.error('Error al eliminar:', error);
+        alert('Error al eliminar la moto');
+      }
+    }
+
+    // Cargar tanqueadas de la moto
+    async function loadTanqueadas() {
+      const motoId = new URLSearchParams(window.location.search).get('id');
+      const container = document.getElementById('tanqueadas-container');
+
+      try {
+        const res = await fetch(`http://localhost:8080/api/tanqueadas/moto/${motoId}`);
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          container.innerHTML = `
+            <p style="color:var(--text-muted);font-size:0.8rem; padding: 0 20px;">
+              No hay tanqueadas registradas
+            </p>
+          `;
+          return;
+        }
+
+        container.innerHTML = data.map(t => `
+          <div class="card" style="margin-bottom:10px; padding:14px 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <strong style="font-size:0.9rem;">${t.tipoCombustible || 'Combustible'}</strong>
+              <span style="font-size:0.75rem; color:var(--text-muted);">${new Date(t.fecha).toLocaleDateString('es-CO')}</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:0.8rem;">
+              <div><span style="color:var(--text-muted);">Galones:</span> <strong>${t.galones || 0}</strong></div>
+              <div><span style="color:var(--text-muted);">Valor:</span> <strong>$${(t.valorPagado || 0).toLocaleString()}</strong></div>
+              <div><span style="color:var(--text-muted);">Odómetro:</span> <strong>${t.odometro || 0} km</strong></div>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (error) {
+        console.error('Error cargando tanqueadas:', error);
+        container.innerHTML = '<p style="color:var(--text-muted);font-size:0.8rem; padding: 0 20px;">Error al cargar tanqueadas</p>';
+      }
+    }
+
+    // Iniciar cuando carga la página
+    document.addEventListener('DOMContentLoaded', function() {
+      initMotoDetail();
+      loadTanqueadas();
+    });
   </script>
 </body>
 </html>

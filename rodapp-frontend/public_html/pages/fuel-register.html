@@ -114,7 +114,7 @@
 <body>
   <div class="page-no-nav" id="form-view" style="padding-bottom: 100px;">
     <div class="page-header fade-up stagger-1">
-      <a href="home.html" class="back-btn">
+      <a id="back-btn" href="garage.html" class="back-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg>
       </a>
       <h2>Registro de Combustible</h2>
@@ -125,20 +125,15 @@
       <!-- Tipo de gasolina -->
       <p class="section-title" style="padding:0; margin-bottom:12px;" class="fade-up stagger-2">Tipo de Gasolina</p>
       <div class="fuel-selector fade-up stagger-2">
-        <div class="fuel-option selected" onclick="selectFuel(this)">
+        <div class="fuel-option selected" onclick="selectFuel(this, 'CORRIENTE')">
           <div class="fuel-icon">⛽</div>
           <p>Corriente</p>
           <span>Regular</span>
         </div>
-        <div class="fuel-option" onclick="selectFuel(this)">
+        <div class="fuel-option" onclick="selectFuel(this, 'EXTRA')">
           <div class="fuel-icon">🔥</div>
           <p>Extra</p>
           <span>Premium</span>
-        </div>
-        <div class="fuel-option" onclick="selectFuel(this)">
-          <div class="fuel-icon">⚡</div>
-          <p>Eléctrico</p>
-          <span>kWh</span>
         </div>
       </div>
 
@@ -147,7 +142,7 @@
         <p class="cost-label">Costo de la Recarga</p>
         <div class="cost-input-wrap">
           <span class="currency">$</span>
-          <input type="number" id="cost-input" placeholder="0" oninput="updateGallons()"/>
+          <input type="number" id="inp-valor" placeholder="0" oninput="updateGallons()" min="0" step="0.01"/>
         </div>
         <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;" id="gallons-est">Ingresa el valor pagado</p>
       </div>
@@ -156,7 +151,7 @@
       <div class="form-group fade-up stagger-3">
         <label>Kilometraje Actual</label>
         <div style="position:relative;">
-          <input type="number" value="12500" id="km-input"/>
+          <input type="number" value="12500" id="inp-odometro"/>
           <span style="position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:0.78rem; color:var(--text-muted);">km</span>
         </div>
         <p style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">Último registro: 12,350 km</p>
@@ -166,25 +161,9 @@
       <div class="form-group fade-up stagger-3">
         <label>Cantidad cargada (galones)</label>
         <div style="position:relative;">
-          <input type="number" step="0.1" placeholder="0.0" id="gal-input"/>
+          <input type="number" step="0.1" placeholder="0.0" id="inp-galones"/>
           <span style="position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:0.78rem; color:var(--text-muted);">gal</span>
         </div>
-      </div>
-
-      <!-- Ubicación -->
-      <p class="section-title" style="padding:0; margin-bottom:8px;" class="fade-up stagger-4">Ubicación</p>
-      <div class="location-row fade-up stagger-4" style="margin-bottom:20px;">
-        <div class="location-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        </div>
-        <div class="location-info">
-          <strong>Bogotá, Cundinamarca</strong>
-          <span>Posición detectada automáticamente</span>
-        </div>
-        <label class="switch">
-          <input type="checkbox" checked id="location-toggle"/>
-          <span class="slider"></span>
-        </label>
       </div>
 
       <!-- Notas -->
@@ -257,7 +236,7 @@
 
   <!-- Botón fijo -->
   <div style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; padding:16px 20px; background:var(--bg-dark); border-top:1px solid var(--border);" id="form-footer">
-    <button class="btn btn-primary" onclick="saveRecord()">
+    <button class="btn btn-primary" onclick="guardarTanqueada()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
       Registrar Recarga
     </button>
@@ -297,38 +276,108 @@
 
   <script src="../js/main.js"></script>
   <script>
-    // Detectar si es vista historial
+    // Detectar parámetros de URL
     const params = new URLSearchParams(window.location.search);
+    const motoId = params.get('id');
+    let tipoCombustibleSeleccionado = 'CORRIENTE';
+
+    // Debug: verificar que el ID llegó correctamente
+    console.log('Moto ID desde URL:', motoId);
+
+    // Validación: si no hay ID válido, redirigir
+    if (!motoId) {
+      alert('Error: Moto no válida');
+      window.location.href = 'garage.html';
+    }
+
+    // Si hay ID de moto, cambiar el back button
+    if (motoId) {
+      document.getElementById('back-btn').href = `moto-detail.html?id=${motoId}`;
+    }
+
     if (params.get('view') === 'history') {
       document.getElementById('form-view').style.display = 'none';
       document.getElementById('history-view').style.display = 'block';
       document.getElementById('form-footer').style.display = 'none';
     }
 
-    function selectFuel(el) {
+    function selectFuel(el, tipo) {
       document.querySelectorAll('.fuel-option').forEach(o => o.classList.remove('selected'));
       el.classList.add('selected');
+      tipoCombustibleSeleccionado = tipo;
     }
 
     function updateGallons() {
-      const cost = parseFloat(document.getElementById('cost-input').value) || 0;
-      const pricePerGal = 12500; // precio promedio galón corriente Colombia
+      const cost = parseFloat(document.getElementById('inp-valor').value) || 0;
+      const pricePerGal = 15800; // precio promedio galón corriente Colombia
       if (cost > 0) {
         const gals = (cost / pricePerGal).toFixed(2);
         document.getElementById('gallons-est').textContent = `≈ ${gals} galones a $${pricePerGal.toLocaleString()}/gal`;
-        document.getElementById('gal-input').value = gals;
+        document.getElementById('inp-galones').value = gals;
       } else {
         document.getElementById('gallons-est').textContent = 'Ingresa el valor pagado';
       }
     }
 
-    function saveRecord() {
-      const cost = document.getElementById('cost-input').value;
-      const km = document.getElementById('km-input').value;
-      if (!cost || cost <= 0) { alert('Por favor ingresa el costo de la recarga.'); return; }
-      if (!km) { alert('Por favor ingresa el kilometraje actual.'); return; }
-      alert('✅ Recarga registrada correctamente.');
-      window.location.href = 'history.html';
+    async function guardarTanqueada() {
+      const valor = parseFloat(document.getElementById('inp-valor').value);
+      const odometro = parseInt(document.getElementById('inp-odometro').value);
+      const galones = parseFloat(document.getElementById('inp-galones').value);
+
+      if (valor === '' || valor === null || isNaN(valor) || valor <= 0) {
+        alert('Por favor ingresa un costo válido (mayor a 0).');
+        return;
+      }
+      if (!odometro || odometro <= 0) {
+        alert('Por favor ingresa el kilometraje actual válido.');
+        return;
+      }
+      if (!galones || galones <= 0) {
+        alert('Por favor ingresa los galones cargados.');
+        return;
+      }
+
+      const tanqueada = {
+        fecha: new Date().toISOString(),
+        galones: galones,
+        valorPagado: valor,
+        odometro: odometro,
+        tipoCombustible: tipoCombustibleSeleccionado,
+        motocicleta:{
+          id: Number(motoId)
+        }
+      };
+
+      console.log('Enviando tanqueada:', tanqueada);
+
+      console.log("JSON FINAL:", JSON.stringify(tanqueada, null, 2));
+
+      try {
+        const res = await fetch('http://localhost:8080/api/tanqueadas', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(tanqueada)
+        });
+
+        const data = await res.text(); // 🔥 importante
+
+        if (!res.ok) {
+          console.error("Error backend:", data);
+          alert("Error real: " + data);
+          return;
+        }
+
+        console.log("Respuesta backend:", data);
+
+        alert('✅ Tanqueada registrada correctamente');
+        window.location.href = `moto-detail.html?id=${motoId}`;
+
+      } catch (error) {
+        console.error('Error conexión:', error);
+        alert('Error de conexión: ' + error.message);
+      }
     }
   </script>
 </body>

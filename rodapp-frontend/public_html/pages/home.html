@@ -218,48 +218,7 @@
     </header>
 
     <!-- Moto Card -->
-    <div class="moto-card fade-up stagger-2">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-        <div>
-          <p class="moto-name">Yamaha MT-09</p>
-          <p class="moto-plate">BGT-123 · 2023</p>
-        </div>
-        <span class="badge badge-cyan">Premium</span>
-      </div>
-      <div class="moto-stats">
-        <div class="moto-stat">
-          <p class="moto-stat-val">12,500</p>
-          <p class="moto-stat-label">Kilómetros</p>
-        </div>
-        <div class="moto-stat">
-          <p class="moto-stat-val" style="color:var(--accent-orange);">500</p>
-          <p class="moto-stat-label">Próx. cambio aceite</p>
-        </div>
-        <div class="moto-stat">
-          <p class="moto-stat-val" style="color:var(--accent-green);">OK</p>
-          <p class="moto-stat-label">Estado legal</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Documentos -->
-    <p class="section-title fade-up stagger-2">Documentación Legal</p>
-    <div class="docs-row fade-up stagger-3">
-      <div class="doc-pill">
-        <span class="dot dot-green" style="margin: 0 auto 6px; display:block;"></span>
-        <span class="doc-pill-label">SOAT</span>
-        <span class="doc-pill-status badge badge-green">Vigente</span>
-      </div>
-      <div class="doc-pill">
-        <span class="dot dot-orange" style="margin: 0 auto 6px; display:block;"></span>
-        <span class="doc-pill-label">RTM</span>
-        <span class="doc-pill-status badge badge-orange">5 días</span>
-      </div>
-      <div class="doc-pill">
-        <span class="dot dot-green" style="margin: 0 auto 6px; display:block;"></span>
-        <span class="doc-pill-label">Licencia</span>
-        <span class="doc-pill-status badge badge-green">A2</span>
-      </div>
+    <div class="moto-card fade-up stagger-2" id="home-moto-container">
     </div>
 
     <!-- Acciones rápidas -->
@@ -285,65 +244,78 @@
       </a>
     </div>
 
-    <div class="home-body">
-    <div class="home-main">
-    <!-- Actividad reciente -->
-    <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 20px; margin-bottom:8px;" class="fade-up stagger-4">
-      <p class="section-title" style="padding:0; margin:0;">Actividad Reciente</p>
-      <a href="history.html" style="font-size:0.78rem; color:var(--accent-cyan); text-decoration:none;">Ver historial</a>
-    </div>
 
-    <div class="card fade-up stagger-5" style="padding: 0;">
-      <div class="activity-item">
-        <div class="activity-icon" style="background:rgba(0,212,200,0.08); color:var(--accent-cyan);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 22V8l6-6h8l4 4v16"/></svg>
+    <div id="home-extra-sections">
+      <!-- Documentos -->
+      <p class="section-title fade-up stagger-2">Documentación Legal</p>
+      <div class="docs-row fade-up stagger-3">
+        <div class="doc-pill">
+          <span class="dot dot-green" style="margin: 0 auto 6px; display:block;"></span>
+          <span class="doc-pill-label">SOAT</span>
+          <span class="doc-pill-status badge badge-green">Vigente</span>
         </div>
-        <div class="activity-info">
-          <strong>Tanqueo Estación Terpel</strong>
-          <span>Hace 2 días · Corriente</span>
+        <div class="doc-pill">
+          <span class="dot dot-orange" style="margin: 0 auto 6px; display:block;"></span>
+          <span class="doc-pill-label">RTM</span>
+          <span class="doc-pill-status badge badge-orange">5 días</span>
         </div>
-        <span class="activity-amount">-$45.000</span>
+        <div class="doc-pill">
+          <span class="dot dot-green" style="margin: 0 auto 6px; display:block;"></span>
+          <span class="doc-pill-label">Licencia</span>
+          <span class="doc-pill-status badge badge-green">A2</span>
+        </div>
       </div>
-      <div class="activity-item">
-        <div class="activity-icon" style="background:rgba(255,107,53,0.08); color:var(--accent-orange);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <div class="activity-info">
-          <strong>Lavado Premium</strong>
-          <span>Hace 5 días</span>
-        </div>
-        <span class="activity-amount">-$15.000</span>
+
+      <div class="home-body">
+      <div class="home-main">
+      <!-- Actividad reciente -->
+      <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 20px; margin-bottom:8px;" class="fade-up stagger-4">
+        <p class="section-title" style="padding:0; margin:0;">Actividad Reciente</p>
+        <a href="history.html" style="font-size:0.78rem; color:var(--accent-cyan); text-decoration:none;">Ver historial</a>
       </div>
-      <div class="activity-item">
-        <div class="activity-icon" style="background:rgba(255,60,60,0.08); color:var(--accent-red);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+
+      <div class="card fade-up stagger-5" style="padding: 0;">
+        <div class="activity-item">
+          <div class="activity-icon" style="background:rgba(0,212,200,0.08); color:var(--accent-cyan);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 22V8l6-6h8l4 4v16"/></svg>
+          </div>
+          <div class="activity-info">
+            <strong>Tanqueo Estación Terpel</strong>
+            <span>Hace 2 días · Corriente</span>
+          </div>
+          <span class="activity-amount">-$45.000</span>
         </div>
-        <div class="activity-info">
-          <strong>Ajuste de cadena</strong>
-          <span>Hace 1 semana · Taller Rod</span>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:rgba(255,107,53,0.08); color:var(--accent-orange);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="activity-info">
+            <strong>Lavado Premium</strong>
+            <span>Hace 5 días</span>
+          </div>
+          <span class="activity-amount">-$15.000</span>
         </div>
-        <span class="activity-amount">-$80.000</span>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:rgba(255,60,60,0.08); color:var(--accent-red);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          </div>
+          <div class="activity-info">
+            <strong>Ajuste de cadena</strong>
+            <span>Hace 1 semana · Taller Rod</span>
+          </div>
+          <span class="activity-amount">-$80.000</span>
+        </div>
       </div>
     </div>
+    
 
-    <!-- Tips -->
-    <p class="section-title fade-up stagger-5">Consejos para Moteros</p>
-    <a href="tips.html" class="tip-card fade-up stagger-5">
-      <div style="width:40px; height:40px; border-radius:8px; background:rgba(0,212,200,0.1); display:flex; align-items:center; justify-content:center; color:var(--accent-cyan); flex-shrink:0;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      </div>
-      <div>
-        <p class="tip-tag">Seguridad · 4 min</p>
-        <p style="font-size:0.88rem; color:var(--text-primary); font-weight:500;">Cómo frenar en lluvia sobre líneas pintadas</p>
-        <p style="font-size:0.78rem; margin-top:4px;">Aprende la técnica de frenado progresivo para la ciudad.</p>
-      </div>
-    </a>
-    </div><!-- /home-main -->
-    <div class="home-side">
-      <!-- Panel lateral desktop -->
-    </div><!-- /home-side -->
-    </div><!-- /home-body -->
-  </div>
+      </div><!-- /home-main -->
+      <div class="home-side">
+        <!-- Panel lateral desktop -->
+      </div><!-- /home-side -->
+      </div><!-- /home-body -->
+    </div><!-- /home-extra-sections -->
+
 
   <!-- Bottom Nav / Sidebar -->
   <nav class="bottom-nav">
