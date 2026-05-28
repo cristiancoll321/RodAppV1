@@ -3,9 +3,11 @@
 //  Navegación y lógica compartida
 // =============================================
 
-// ── Resaltar nav item activo ────────────────
+// ── Cargar al documento ─────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   const path = window.location.pathname.split('/').pop() || 'index.html';
+  
+  // Resaltar nav item activo
   const navMap = {
     'index.html':         null,
     'home.html':          'nav-home',
@@ -20,12 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
     'tips.html':          'nav-home',
   };
 
-  // ✓ REMOVER 'active' de TODOS los nav-items primero
   document.querySelectorAll('.nav-item').forEach(item => {
     item.classList.remove('active');
   });
 
-  // ✓ LUEGO añadir 'active' solo al correcto
   const activeId = navMap[path];
   if (activeId) {
     const el = document.getElementById(activeId);
@@ -38,6 +38,19 @@ document.addEventListener('DOMContentLoaded', () => {
     el.style.opacity = '0';
     el.style.animationFillMode = 'forwards';
   });
+  
+  // Cargar datos específicos según la página
+  if (path === 'home.html') {
+    loadUserGreeting();
+    loadHomeMoto();
+  } else if (path === 'profile.html') {
+    loadProfileData();
+  } else if (path === 'garage.html') {
+    loadGarageMotos();
+  }
+  
+  initFabMenu();
+  updateNotifBadge();
 });
 
 
@@ -204,36 +217,7 @@ function initFabMenu() {
   });
 }
 
-// ── Helpers de fecha ─────────────────────────
-function formatDate(date) {
-  return new Intl.DateTimeFormat('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
-}
-
-function daysUntil(dateStr) {
-  const d = new Date(dateStr);
-  const now = new Date();
-  return Math.ceil((d - now) / (1000 * 60 * 60 * 24));
-}
-
-// ── Init ─────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  const path = window.location.pathname.split('/').pop() || 'index.html';
-  
-  // Cargar datos específicos según la página
-  if (path === 'home.html') {
-    loadUserGreeting();
-    loadHomeMoto();
-  } else if (path === 'profile.html') {
-    loadProfileData();
-  } else if (path === 'garage.html') {
-    loadGarageMotos();
-  }
-  
-  initFabMenu();
-  updateNotifBadge();
-});
-
-
+// ── Cargar moto principal en home ───────────
 async function loadHomeMoto() {
   const usuario = getUser();
   const container = document.getElementById('home-moto-container');
@@ -330,3 +314,10 @@ function disableQuickActions(disabled) {
   });
 }
 
+function handleLogout(){
+  const confirmar = confirm("¿Cerrar sesión?");
+  if(!confirm) return;
+  localStorage.removeItem("usuario");
+  localStorage.clear();
+  window.location.href= "../index.html";
+}
