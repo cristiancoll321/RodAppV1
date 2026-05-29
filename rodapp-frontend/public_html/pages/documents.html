@@ -50,6 +50,22 @@
     <div style="width:32px;"></div>
   </div>
 
+  <!-- Banner mostrando la moto seleccionada (cuando aplique) -->
+  <div id="selected-moto-banner" style="display:none; padding:12px 16px; margin-bottom:8px;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div id="selected-moto-info" style="font-weight:600;"></div>
+      <a href="#" id="change-moto-link" style="color:var(--accent-cyan); text-decoration:none; font-size:0.9rem;">Cambiar</a>
+    </div>
+  </div>
+
+  <!-- CTA visible para añadir documento (cuando hay moto seleccionada) -->
+  <div id="add-doc-cta" style="display:none; padding:0 16px 12px;">
+    <a id="add-doc-btn" href="#" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:10px; padding:12px 16px; font-weight:700;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 5v14M5 12h14"/></svg>
+      Añadir documento
+    </a>
+  </div>
+
   <!-- ════ SELECTOR DE MOTOS ════════════════════════════ -->
   <div id="select-moto-mode">
     <div style="padding:20px 16px;">
@@ -154,9 +170,13 @@
   };
 
   const params = new URLSearchParams(window.location.search);
-  const motoId = params.get("motoId");
+  let motoId = params.get("motoId");
   const docId = params.get("docId");
   const action = params.get("action");
+
+  // Motos cargadas en el selector y la moto actualmente seleccionada
+  let availableMotos = [];
+  let selectedMoto = null;
 
   let currentDoc = null;
 
@@ -165,6 +185,41 @@
   // =========================
   function docsBaseUrl() {
     return `${API_BASE}/api/motos/${motoId}/documentos`;
+  }
+
+  async function loadSelectedMoto() {
+    if (!motoId) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/motos/${motoId}`);
+      if (!res.ok) return;
+      const m = await res.json();
+      selectedMoto = m;
+      updateSelectedBanner();
+    } catch (e) {
+      console.error('Error cargando moto seleccionada', e);
+    }
+  }
+
+  function updateSelectedBanner() {
+    const banner = document.getElementById('selected-moto-banner');
+    const info = document.getElementById('selected-moto-info');
+    const change = document.getElementById('change-moto-link');
+    const saveBtn = document.querySelector('#footer-edit .btn-primary');
+    const addCta = document.getElementById('add-doc-cta');
+    const addBtn = document.getElementById('add-doc-btn');
+
+    if (selectedMoto && banner && info) {
+      banner.style.display = 'block';
+      info.textContent = `${selectedMoto.marca} ${selectedMoto.modelo} · Placa: ${selectedMoto.placa || 'S/N'}`;
+      if (change) change.onclick = (e) => { e.preventDefault(); history.replaceState({}, '', 'documents.html'); motoId = null; selectedMoto = null; renderMotoSelector(); };
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; }
+      if (addCta) addCta.style.display = 'block';
+      if (addBtn) addBtn.href = `documents.html?motoId=${motoId}&action=nuevo`;
+    } else {
+      if (banner) banner.style.display = 'none';
+      if (saveBtn) { saveBtn.disabled = true; saveBtn.style.opacity = '0.6'; }
+      if (addCta) addCta.style.display = 'none';
+    }
   }
 
   function getStatusBadge(fechaVencimiento) {
@@ -212,6 +267,9 @@
       return;
     }
 
+    // si hay motoId en la URL, cargamos su info para mostrar el banner
+    await loadSelectedMoto();
+
     document.getElementById("back-link").href = `moto-detail.html?id=${motoId}`;
     document.getElementById("back-btn-view").href = `moto-detail.html?id=${motoId}`;
 
@@ -246,28 +304,51 @@
       const res = await fetch(`${API_BASE}/api/motos/usuario/${usuario.id}`);
       const motos = await res.json();
       const list = document.getElementById("motos-list");
+      availableMotos = Array.isArray(motos) ? motos : [];
 
       if (!Array.isArray(motos) || motos.length === 0) {
         list.innerHTML = `<div class="card" style="padding:16px;">No tienes motos registradas.</div>`;
         return;
       }
 
-      list.innerHTML = motos
-        .map(
-          (m) => `
-          <div class="doc-card" onclick="window.location='documents.html?motoId=${m.id}'">
-            <div class="doc-card-info">
+      list.innerHTML = availableMotos
+        .map((m) => `
+          <div class="doc-card" style="display:flex;justify-content:space-between;align-items:center;padding:12px;margin-bottom:8px;">
+            <div class="doc-card-info" style="flex:1;">
               <strong>${m.marca} ${m.modelo}</strong>
               <span>Placa: ${m.placa || "Sin placa"}</span>
             </div>
+            <div style="margin-left:12px;">
+              <button class="btn" onclick="selectMoto('${m.id}')">Seleccionar</button>
+            </div>
           </div>
-        `
-        )
+        `)
         .join("");
+
+      // al mostrar el selector, aseguramos que el banner y guardar estén deshabilitados
+      selectedMoto = null;
+      updateSelectedBanner();
     } catch (e) {
       console.error(e);
       alert("Error cargando motos");
     }
+  }
+
+  // Selecciona una moto desde el selector sin recargar la página
+  function selectMoto(id) {
+    const m = availableMotos.find(x => String(x.id) === String(id));
+    if (!m) return alert('Moto no encontrada');
+    selectedMoto = m;
+    motoId = String(id);
+    // actualizar URL sin recargar
+    const newUrl = `documents.html?motoId=${motoId}`;
+    history.replaceState({}, '', newUrl);
+    document.getElementById('page-title').textContent = 'Documentos';
+    document.getElementById('back-link').href = `moto-detail.html?id=${motoId}`;
+    document.getElementById('back-btn-view').href = `moto-detail.html?id=${motoId}`;
+    updateSelectedBanner();
+    // cargar lista de documentos para la moto seleccionada
+    loadDocsList();
   }
 
   // =========================
@@ -413,6 +494,12 @@
   }
 
   async function saveDoc() {
+    if (!motoId) {
+      alert('Selecciona primero la motocicleta a la que quieres agregar el documento');
+      // forzamos al selector
+      await renderMotoSelector();
+      return;
+    }
     const tipo = document.getElementById("doc-tipo").value;
     const numeroPoliza = document.getElementById("doc-poliza").value.trim();
     const fechaVencimiento = document.getElementById("doc-fecha").value;

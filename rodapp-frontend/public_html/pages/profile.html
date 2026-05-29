@@ -69,12 +69,18 @@
       <button style="background:transparent; border:none; color:var(--accent-cyan); font-size:0.85rem; cursor:pointer; font-family:var(--font-body);">Guardar</button>
     </div>
 
-    <!-- Perfil header -->
+    <!-- Perfil header (reemplaza la sección existente) -->
     <div class="profile-header fade-up stagger-2">
       <div class="avatar" id="profile-avatar">CR</div>
-      <div>
-        <p class="profile-name" id="profile-name">Carlos Rodríguez</p>
-        <p class="profile-moto" id="profile-moto">Yamaha MT-09 (2023)</p>
+      <div style="flex:1;">
+        <label style="display:block;font-size:0.85rem;color:var(--text-muted);">Nombre</label>
+        <input id="profile-name-input" type="text" style="width:100%;padding:8px;margin-bottom:8px;" />
+        <label style="display:block;font-size:0.85rem;color:var(--text-muted);">Correo</label>
+        <input id="profile-email-input" type="email" style="width:100%;padding:8px;margin-bottom:8px;" />
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button id="btn-save-profile" class="btn btn-primary" onclick="updateProfile()">Guardar</button>
+        <button id="btn-delete-account" class="btn btn-delete" onclick="deleteAccount()">Eliminar cuenta</button>
       </div>
     </div>
 

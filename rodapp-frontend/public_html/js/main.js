@@ -58,7 +58,8 @@ function getUser() {
       console.error('Error parseando usuario:', e);
     }
   }
-  return USER;
+  // Si no hay usuario en localStorage, devolver un objeto por defecto
+  return { name: 'Usuario', email: '', id: null };
 }
 
 // ── Saludo dinámico según hora ──────────────
@@ -336,3 +337,118 @@ function handleLogout() {
   localStorage.removeItem("usuario");
   window.location.href = "../index.html";
 }
+
+// Profile helpers (agregar al final de main.js o en profile.js)
+const API_BASE_PROFILE = (typeof API_BASE !== 'undefined') ? API_BASE : 'http://localhost:8080';
+
+function getStoredUser() {
+  try {
+    return JSON.parse(localStorage.getItem('usuario') || 'null');
+  } catch (e) { return null; }
+}
+
+async function loadProfile() {
+  const u = getStoredUser();
+  if (!u || !u.id) {
+    alert('No hay usuario logueado');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE_PROFILE}/api/usuarios/${u.id}`);
+    if (!res.ok) {
+      const txt = await res.text();
+      alert('Error cargando perfil: ' + txt);
+      return;
+    }
+    const usuario = await res.json();
+    // llenar inputs
+    const nameInput = document.getElementById('profile-name-input');
+    const emailInput = document.getElementById('profile-email-input');
+    const avatar = document.getElementById('profile-avatar');
+
+    if (nameInput) nameInput.value = usuario.nombre || usuario.name || '';
+    if (emailInput) emailInput.value = usuario.email || '';
+    if (avatar) {
+      const initials = (usuario.nombre || usuario.name || '')
+        .split(' ').map(s => s[0] || '').join('').substring(0,2).toUpperCase();
+      avatar.textContent = initials || 'U';
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Error de conexión al cargar perfil');
+  }
+}
+
+async function updateProfile() {
+  const u = getStoredUser();
+  if (!u || !u.id) { alert('Usuario no logueado'); return; }
+
+  const nameInput = document.getElementById('profile-name-input');
+  const emailInput = document.getElementById('profile-email-input');
+  const nombre = nameInput ? nameInput.value.trim() : '';
+  const email = emailInput ? emailInput.value.trim() : '';
+
+  if (!nombre || !email) { alert('Nombre y email son requeridos'); return; }
+
+  try {
+    const r = await fetch(`${API_BASE_PROFILE}/api/usuarios/${u.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre, email })
+    });
+
+    const raw = await r.text();
+    if (!r.ok) {
+      if (r.status === 409) {
+        alert('El email ya está en uso por otro usuario.');
+        return;
+      }
+      alert('Error actualizando perfil: ' + raw);
+      return;
+    }
+
+    const updated = raw ? JSON.parse(raw) : null;
+    // actualizar localStorage (mantener mismos campos guardados)
+    const newUser = { ...u, nombre: updated?.nombre || nombre, email: updated?.email || email, name: updated?.nombre || updated?.name || nombre };
+    localStorage.setItem('usuario', JSON.stringify(newUser));
+    alert('Perfil actualizado correctamente');
+    // refrescar UI donde corresponda
+    if (document.getElementById('greeting-name')) document.getElementById('greeting-name').textContent = newUser.name;
+  } catch (err) {
+    console.error(err);
+    alert('Error de conexión al actualizar perfil');
+  }
+}
+
+async function deleteAccount() {
+  const u = getStoredUser();
+  if (!u || !u.id) { alert('Usuario no logueado'); return; }
+
+  if (!confirm('¿Estás seguro? Esta acción eliminará tu cuenta permanentemente.')) return;
+
+  try {
+    const r = await fetch(`${API_BASE_PROFILE}/api/usuarios/${u.id}`, { method: 'DELETE' });
+    if (!r.ok) {
+      const txt = await r.text();
+      alert('Error eliminando cuenta: ' + txt);
+      return;
+    }
+    // Logout / redirect
+    localStorage.removeItem('usuario');
+    alert('Cuenta eliminada. Serás redirigido al inicio.');
+    window.location.href = '../index.html';
+  } catch (err) {
+    console.error(err);
+    alert('Error de conexión al eliminar cuenta');
+  }
+}
+
+// Auto-initialize profile page
+document.addEventListener('DOMContentLoaded', () => {
+  // si estamos en profile.html cargar los datos
+  const path = window.location.pathname.split('/').pop();
+  if (path === 'profile.html') {
+    loadProfile();
+  }
+});
