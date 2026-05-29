@@ -352,7 +352,17 @@
           return;
         }
 
-        container.innerHTML = data.map(t => `
+        // Actualizar el km actual con el mayor odometro registrado
+        const maxOdometro = Math.max(...data.map(t => t.odometro || 0));
+        if (maxOdometro > 0) {
+          document.getElementById('stat-km').textContent = maxOdometro;
+          console.log('km actualizado a:', maxOdometro);
+        }
+
+        // Ordenar por fecha descendente
+        const sorted = [...data].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+        container.innerHTML = sorted.map(t => `
           <div class="card" style="margin-bottom:10px; padding:14px 20px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
               <strong style="font-size:0.9rem;">${t.tipoCombustible || 'Combustible'}</strong>

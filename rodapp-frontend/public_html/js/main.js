@@ -330,3 +330,9 @@ function disableQuickActions(disabled) {
   });
 }
 
+function handleLogout() {
+  const confirmar = confirm("¿Cerrar sesión?");
+  if (!confirmar) return;
+  localStorage.removeItem("usuario");
+  window.location.href = "../index.html";
+}
