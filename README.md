@@ -1,76 +1,70 @@
-# RodAppV1
+# RodAppV1 - Sistema de Gestión para Motociclistas
 
-# RodApp - Backend con Spring Boot
+RodApp es una solución integral para el seguimiento y mantenimiento de motocicletas, permitiendo a los usuarios gestionar tanqueadas, documentos legales, mantenimientos y perfiles de vehículos.
 
-API REST para la aplicación RodApp de gestión de motos, tanqueadas y documentos.
+## 🚀 Tecnologías y Versiones
+- **Backend:** Java 17, Spring Boot 3.x, Spring Data JPA, Spring Security, MySQL.
+- **Frontend:** HTML5, CSS3, JavaScript (Vanilla), Estructura de Páginas Estáticas.
+- **Gestión de Dependencias:** Maven (Backend).
 
-## 🚀 Tecnologías
+## 🗄️ Arquitectura del Backend
+La estructura sigue un patrón multicapa:
+- `controller/`: Endpoints REST que gestionan las peticiones HTTP.
+- `service/`: Lógica de negocio y validaciones.
+- `repository/`: Interfaces JPA para persistencia en MySQL.
+- `model/`: Entidades del dominio y Enums.
+- `dto/`: Objetos de transferencia para registro, login y respuestas seguras.
+- `config/`: Seguridad (BCrypt), excepciones globales y configuración de CORS.
 
-- Java 17
-- Spring Boot 3.x
-- Spring Data JPA
-- Spring Security (próximamente)
-- MySQL
-- Maven
+### Endpoints Principales (API REST)
+- **Usuarios (`/api/usuarios`):**
+  - `POST /registrar`: Creación de nuevos usuarios con contraseñas encriptadas.
+  - `POST /login`: Autenticación de usuarios.
+  - `GET /{id}`: Obtención de perfil de usuario.
+- **Motos (`/api/motos`):**
+  - `POST /`: Registrar nueva motocicleta.
+  - `GET /`: Listar todas las motos.
+  - `GET /usuario/{usuarioId}`: Listar motos de un usuario específico.
+  - `PUT /{id}`: Actualizar datos del vehículo.
+  - `DELETE /{id}`: Eliminar registro.
+- **Tanqueadas (`/api/tanqueadas`):**
+  - `POST /`: Registrar carga de combustible.
+  - `GET /moto/{motoId}`: Historial de consumo por moto.
+- **Mantenimientos (`/api/mantenimientos`):**
+  - `POST /`: Registrar servicio técnico.
+  - `GET /moto/{motoId}`: Historial de servicios.
+- **Documentos (`/api/documentos`):**
+  - `GET /moto/{motoId}`: Consulta de SOAT, Tecnomecánica y otros documentos.
 
-## 📦 Estructura del proyecto
+## 🎨 Interfaz Frontend (Public HTML)
+El frontend está organizado en módulos funcionales:
+- **Gestión Vehicular:** `garage.html`, `moto-register.html`, `moto-detail.html`.
+- **Operaciones Diarias:** `fuel-register.html`, `maintenance.html`.
+- **Información y Utilidades:** `history.html`, `map.html`, `tips.html`, `notifications.html`.
+- **Autenticación:** `index.html` (Landing), `register.html`, `profile.html`.
 
-src/main/java/com/rodapp/backend/
-├── controller/ # Endpoints REST
-├── service/ # Lógica de negocio
-├── repository/ # Acceso a datos (JPA)
-├── model/ # Entidades JPA
-├── dto/ # Objetos de transferencia
-└── config/ # Configuraciones (CORS, Security)
+## 🛠️ Instalación y Configuración
 
+### 1. Requisitos
+- JDK 17 o superior.
+- MySQL Server 8.x.
+- Maven.
 
-## 🗄️ Configuración de base de datos
-
-Editar `application.properties`:
-properties
+### 2. Base de Datos
+1. Crear base de datos: `CREATE DATABASE rodapp_db;`
+2. Configurar `rodapp-backend/src/main/resources/application.properties` con tus credenciales:
+```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/rodapp_db
-spring.datasource.username=root
-spring.datasource.password=tu_password
-spring.jpa.hibernate.ddl-auto=update
+spring.datasource.username=tu_usuario
+spring.datasource.password=tu_contraseña
+```
 
-# Clonar el repo
-git clone [URL_DEL_REPO]
-
-# Entrar al directorio
+### 3. Ejecución
+```bash
 cd rodapp-backend
-
-# Ejecutar con Maven
 ./mvnw spring-boot:run
-
-
+```
+Luego, abre `rodapp-frontend/public_html/index.html` en tu navegador.
 
 ---
-
-## 📋 Checklist para que organices el trabajo
-
-### Tuyo (Terminar Usuario)
-java
-// UsuarioController.java - métodos necesarios:
-✅ POST /api/usuarios/registrar
-✅ POST /api/usuarios/login  
-✅ GET /api/usuarios/{id}
-✅ PUT /api/usuarios/{id}
-✅ DELETE /api/usuarios/{id}
-
-// MotoController.java - métodos necesarios:
-✅ POST /api/motos
-✅ GET /api/motos
-✅ GET /api/motos/{id}
-✅ GET /api/motos/usuario/{usuarioId}  // motos de un usuario
-✅ PUT /api/motos/{id}
-✅ DELETE /api/motos/{id}
-
-Tips para trabajar en equipo con Git
-# Cada uno trabaja en su rama
-git checkout -b feature/usuario    # tú
-git checkout -b feature/moto       # tu compañero
-
-# Al terminar, hacen merge a main
-git checkout main
-git merge feature/usuario
-git push origin main
+*Documentación actualizada al estado actual del proyecto (Rama Main).*

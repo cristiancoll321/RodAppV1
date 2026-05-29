@@ -112,33 +112,45 @@
   </style>
 </head>
 <body>
-  <div class="page-no-nav" id="form-view" style="padding-bottom: 100px;">
+  <!-- Vista selector (Si no hay ID) -->
+  <div id="selector-view" style="display:none;" class="page-no-nav">
+    <div class="page-header">
+      <a href="garage.html" class="back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg>
+      </a>
+      <h2>Seleccionar Moto</h2>
+      <div style="width:36px;"></div>
+    </div>
+    <div style="padding: 20px;">
+      <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:20px;">Elige la motocicleta para la cual deseas registrar la recarga:</p>
+      <div id="selector-container">
+        <!-- Motos se cargarán aquí -->
+      </div>
+    </div>
+  </div>
+
+  <div class="page-no-nav" id="form-view" style="padding-bottom: 100px; display:none;">
     <div class="page-header fade-up stagger-1">
-      <a href="home.html" class="back-btn">
+      <a id="back-btn" href="garage.html" class="back-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg>
       </a>
       <h2>Registro de Combustible</h2>
-      <a href="fuel-register.html?view=history" style="font-size:0.78rem; color:var(--accent-cyan); text-decoration:none;">Historial</a>
+      <a id="history-link" href="#" style="font-size:0.78rem; color:var(--accent-cyan); text-decoration:none;">Historial</a>
     </div>
 
     <div style="padding: 0 20px;">
       <!-- Tipo de gasolina -->
       <p class="section-title" style="padding:0; margin-bottom:12px;" class="fade-up stagger-2">Tipo de Gasolina</p>
       <div class="fuel-selector fade-up stagger-2">
-        <div class="fuel-option selected" onclick="selectFuel(this)">
+        <div class="fuel-option selected" onclick="selectFuel(this, 'CORRIENTE')">
           <div class="fuel-icon">⛽</div>
           <p>Corriente</p>
           <span>Regular</span>
         </div>
-        <div class="fuel-option" onclick="selectFuel(this)">
+        <div class="fuel-option" onclick="selectFuel(this, 'EXTRA')">
           <div class="fuel-icon">🔥</div>
           <p>Extra</p>
           <span>Premium</span>
-        </div>
-        <div class="fuel-option" onclick="selectFuel(this)">
-          <div class="fuel-icon">⚡</div>
-          <p>Eléctrico</p>
-          <span>kWh</span>
         </div>
       </div>
 
@@ -147,7 +159,7 @@
         <p class="cost-label">Costo de la Recarga</p>
         <div class="cost-input-wrap">
           <span class="currency">$</span>
-          <input type="number" id="cost-input" placeholder="0" oninput="updateGallons()"/>
+          <input type="number" id="inp-valor" placeholder="0" oninput="updateGallons()" min="0" step="0.01"/>
         </div>
         <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;" id="gallons-est">Ingresa el valor pagado</p>
       </div>
@@ -156,35 +168,19 @@
       <div class="form-group fade-up stagger-3">
         <label>Kilometraje Actual</label>
         <div style="position:relative;">
-          <input type="number" value="12500" id="km-input"/>
+          <input type="number" placeholder="0" id="inp-odometro"/>
           <span style="position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:0.78rem; color:var(--text-muted);">km</span>
         </div>
-        <p style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">Último registro: 12,350 km</p>
+        <p style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">Ingresa el kilometraje actual de tu moto.</p>
       </div>
 
       <!-- Galones / Litros -->
       <div class="form-group fade-up stagger-3">
         <label>Cantidad cargada (galones)</label>
         <div style="position:relative;">
-          <input type="number" step="0.1" placeholder="0.0" id="gal-input"/>
+          <input type="number" step="0.1" placeholder="0.0" id="inp-galones"/>
           <span style="position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:0.78rem; color:var(--text-muted);">gal</span>
         </div>
-      </div>
-
-      <!-- Ubicación -->
-      <p class="section-title" style="padding:0; margin-bottom:8px;" class="fade-up stagger-4">Ubicación</p>
-      <div class="location-row fade-up stagger-4" style="margin-bottom:20px;">
-        <div class="location-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        </div>
-        <div class="location-info">
-          <strong>Bogotá, Cundinamarca</strong>
-          <span>Posición detectada automáticamente</span>
-        </div>
-        <label class="switch">
-          <input type="checkbox" checked id="location-toggle"/>
-          <span class="slider"></span>
-        </label>
       </div>
 
       <!-- Notas -->
@@ -198,66 +194,34 @@
   <!-- Vista historial -->
   <div id="history-view" style="display:none;" class="page-no-nav" style="padding-bottom:100px;">
     <div class="page-header fade-up stagger-1">
-      <a href="fuel-register.html" class="back-btn">
+      <a id="back-to-form" href="#" class="back-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg>
       </a>
-      <h2>Registro de Combustible</h2>
+      <h2>Historial de Combustible</h2>
       <div style="width:36px;"></div>
     </div>
 
-    <!-- Resumen mensual -->
+    <!-- Resumen mensual (Vaciado) -->
     <div class="card fade-up stagger-2" style="margin-bottom:16px;">
-      <p style="font-family:var(--font-display); font-size:0.75rem; font-weight:600; color:var(--text-secondary); letter-spacing:0.05em; text-transform:uppercase; margin-bottom:6px;">Gasto Mensual</p>
+      <p style="font-family:var(--font-display); font-size:0.75rem; font-weight:600; color:var(--text-secondary); letter-spacing:0.05em; text-transform:uppercase; margin-bottom:6px;">Resumen</p>
       <div style="display:flex; align-items:flex-end; gap:10px; margin-bottom:12px;">
-        <span style="font-family:var(--font-display); font-size:2rem; font-weight:700;">$120.000</span>
-        <span style="font-size:0.82rem; color:var(--accent-green); margin-bottom:6px;">+5%</span>
-      </div>
-      <div class="mini-chart">
-        <div class="mini-bar" style="height:45%;"></div>
-        <div class="mini-bar" style="height:55%;"></div>
-        <div class="mini-bar" style="height:38%;"></div>
-        <div class="mini-bar" style="height:70%;"></div>
-        <div class="mini-bar peak" style="height:100%;"></div>
-        <div class="mini-bar" style="height:80%;"></div>
-      </div>
-      <div style="display:flex; justify-content:space-between; padding:0 0 4px; font-size:0.68rem; color:var(--text-muted);">
-        <span>May</span><span>Jun</span><span>Jul</span><span>Ago</span><span>Sep</span><span>Oct</span>
+        <span id="total-spent" style="font-family:var(--font-display); font-size:2rem; font-weight:700;">$0</span>
       </div>
     </div>
 
     <!-- Lista historial -->
     <div style="display:flex; justify-content:space-between; padding: 0 20px; margin-bottom:8px;">
-      <p class="section-title" style="padding:0; margin:0;">Historial</p>
-      <a href="#" style="font-size:0.78rem; color:var(--accent-cyan); text-decoration:none;">Ver todo</a>
+      <p class="section-title" style="padding:0; margin:0;">Historial Reciente</p>
     </div>
 
-    <div class="card" style="padding:0;">
-      <div class="fuel-item">
-        <div class="fuel-station-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M3 22V8l6-6h8l4 4v16"/></svg></div>
-        <div class="fuel-item-info"><strong>Terpel Calle 80</strong><span>12 Oct 2023 · Corriente</span></div>
-        <div class="fuel-item-amount"><strong>-$25.000</strong><span>2.1 gal</span></div>
-      </div>
-      <div class="fuel-item">
-        <div class="fuel-station-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M3 22V8l6-6h8l4 4v16"/></svg></div>
-        <div class="fuel-item-info"><strong>Primax Av. Boyacá</strong><span>05 Oct 2023 · Extra</span></div>
-        <div class="fuel-item-amount"><strong>-$32.000</strong><span>2.4 gal</span></div>
-      </div>
-      <div class="fuel-item">
-        <div class="fuel-station-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M3 22V8l6-6h8l4 4v16"/></svg></div>
-        <div class="fuel-item-info"><strong>Texaco NQS</strong><span>28 Sep 2023 · Corriente</span></div>
-        <div class="fuel-item-amount"><strong>-$18.000</strong><span>1.8 gal</span></div>
-      </div>
-      <div class="fuel-item">
-        <div class="fuel-station-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M3 22V8l6-6h8l4 4v16"/></svg></div>
-        <div class="fuel-item-info"><strong>Terpel Suba</strong><span>15 Sep 2023 · Extra</span></div>
-        <div class="fuel-item-amount"><strong>-$45.000</strong><span>3.0 gal</span></div>
-      </div>
+    <div class="card" style="padding:0;" id="history-container">
+      <!-- Se cargará dinámicamente -->
     </div>
   </div>
 
   <!-- Botón fijo -->
-  <div style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; padding:16px 20px; background:var(--bg-dark); border-top:1px solid var(--border);" id="form-footer">
-    <button class="btn btn-primary" onclick="saveRecord()">
+  <div style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; padding:16px 20px; background:var(--bg-dark); border-top:1px solid var(--border); z-index: 10;" id="form-footer">
+    <button class="btn btn-primary" onclick="guardarTanqueada()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
       Registrar Recarga
     </button>
@@ -265,39 +229,176 @@
 
   <script src="../js/main.js"></script>
   <script>
-    // Detectar si es vista historial
     const params = new URLSearchParams(window.location.search);
-    if (params.get('view') === 'history') {
-      document.getElementById('form-view').style.display = 'none';
-      document.getElementById('history-view').style.display = 'block';
-      document.getElementById('form-footer').style.display = 'none';
+    let motoId = params.get('id');
+    let tipoCombustibleSeleccionado = 'CORRIENTE';
+
+    async function init() {
+      const usuario = getUser();
+      if (!usuario.id) {
+        window.location.href = '../index.html';
+        return;
+      }
+
+      // 1. SI NO HAY MOTO ID, intentar obtenerla o mostrar selector
+      if (!motoId) {
+        try {
+          const res = await fetch(`http://localhost:8081/api/motos/usuario/${usuario.id}`);
+          const motos = await res.json();
+          
+          if (motos.length === 0) {
+            alert('Primero debes registrar una motocicleta');
+            window.location.href = 'moto-register.html';
+          } else if (motos.length === 1) {
+            // Auto-seleccionar la única moto
+            window.location.href = `fuel-register.html?id=${motos[0].id}`;
+          } else {
+            // Mostrar selector
+            showSelector(motos);
+          }
+        } catch (e) {
+          console.error(e);
+          alert('Error al cargar motos');
+        }
+        return;
+      }
+
+      // 2. SI HAY MOTO ID, cargar vista normal
+      document.getElementById('form-view').style.display = 'block';
+      setupFormLinks();
+
+      if (params.get('view') === 'history') {
+        document.getElementById('form-view').style.display = 'none';
+        document.getElementById('history-view').style.display = 'block';
+        document.getElementById('form-footer').style.display = 'none';
+        loadFuelHistory();
+      }
     }
 
-    function selectFuel(el) {
+    function showSelector(motos) {
+      const view = document.getElementById('selector-view');
+      const container = document.getElementById('selector-container');
+      const footer = document.getElementById('form-footer');
+      
+      view.style.display = 'block';
+      if (footer) footer.style.display = 'none';
+
+      container.innerHTML = motos.map(m => `
+        <div class="card fade-up" style="margin-bottom:12px; cursor:pointer;" onclick="window.location.href='fuel-register.html?id=${m.id}'">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <strong style="display:block; font-size:1rem;">${m.marca} ${m.modelo}</strong>
+              <span style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-mono);">${m.placa}</span>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="color:var(--accent-cyan);"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function setupFormLinks() {
+      const backBtn = document.getElementById('back-btn');
+      const historyLink = document.getElementById('history-link');
+      const backToForm = document.getElementById('back-to-form');
+
+      if (backBtn) backBtn.href = `moto-detail.html?id=${motoId}`;
+      if (historyLink) historyLink.href = `fuel-register.html?id=${motoId}&view=history`;
+      if (backToForm) backToForm.href = `fuel-register.html?id=${motoId}`;
+    }
+
+    function selectFuel(el, tipo) {
       document.querySelectorAll('.fuel-option').forEach(o => o.classList.remove('selected'));
       el.classList.add('selected');
+      tipoCombustibleSeleccionado = tipo;
     }
 
     function updateGallons() {
-      const cost = parseFloat(document.getElementById('cost-input').value) || 0;
-      const pricePerGal = 12500; // precio promedio galón corriente Colombia
+      const cost = parseFloat(document.getElementById('inp-valor').value) || 0;
+      const pricePerGal = 15800; 
       if (cost > 0) {
         const gals = (cost / pricePerGal).toFixed(2);
         document.getElementById('gallons-est').textContent = `≈ ${gals} galones a $${pricePerGal.toLocaleString()}/gal`;
-        document.getElementById('gal-input').value = gals;
+        document.getElementById('inp-galones').value = gals;
       } else {
         document.getElementById('gallons-est').textContent = 'Ingresa el valor pagado';
       }
     }
 
-    function saveRecord() {
-      const cost = document.getElementById('cost-input').value;
-      const km = document.getElementById('km-input').value;
-      if (!cost || cost <= 0) { alert('Por favor ingresa el costo de la recarga.'); return; }
-      if (!km) { alert('Por favor ingresa el kilometraje actual.'); return; }
-      alert('✅ Recarga registrada correctamente.');
-      window.location.href = 'history.html';
+    async function loadFuelHistory() {
+      const container = document.getElementById('history-container');
+      const totalSpentEl = document.getElementById('total-spent');
+      try {
+        const res = await fetch(`http://localhost:8081/api/tanqueadas/moto/${motoId}`);
+        const data = await res.json();
+
+        if (data.length === 0) {
+          container.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-muted);">No hay registros aún.</div>';
+          totalSpentEl.textContent = '$0';
+          return;
+        }
+
+        let total = 0;
+        container.innerHTML = data.map(t => {
+          total += t.valorPagado;
+          return `
+            <div class="fuel-item">
+              <div class="fuel-station-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M3 22V8l6-6h8l4 4v16"/></svg></div>
+              <div class="fuel-item-info">
+                <strong>${t.tipoCombustible || 'Combustible'}</strong>
+                <span>${new Date(t.fecha).toLocaleDateString()} · ${t.odometro} km</span>
+              </div>
+              <div class="fuel-item-amount">
+                <strong>-$${t.valorPagado.toLocaleString()}</strong>
+                <span>${t.galones} gal</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+        totalSpentEl.textContent = `$${total.toLocaleString()}`;
+      } catch (error) {
+        console.error('Error:', error);
+        container.innerHTML = '<div style="padding:20px; text-align:center; color:var(--accent-red);">Error al cargar el historial.</div>';
+      }
     }
+
+    async function guardarTanqueada() {
+      const valor = parseFloat(document.getElementById('inp-valor').value);
+      const odometro = parseInt(document.getElementById('inp-odometro').value);
+      const galones = parseFloat(document.getElementById('inp-galones').value);
+
+      if (!valor || valor <= 0) { alert('Costo inválido'); return; }
+      if (!odometro || odometro <= 0) { alert('Kilometraje inválido'); return; }
+      if (!galones || galones <= 0) { alert('Galones inválidos'); return; }
+
+      const tanqueada = {
+        fecha: new Date().toISOString(),
+        galones,
+        valorPagado: valor,
+        odometro,
+        tipoCombustible: tipoCombustibleSeleccionado,
+        motocicleta: { id: Number(motoId) }
+      };
+
+      try {
+        const res = await fetch('http://localhost:8081/api/tanqueadas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(tanqueada)
+        });
+
+        if (res.ok) {
+          alert('✅ Tanqueada registrada');
+          window.location.href = `moto-detail.html?id=${motoId}`;
+        } else {
+          const err = await res.text();
+          alert('Error: ' + err);
+        }
+      } catch (error) {
+        alert('Error de conexión');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>

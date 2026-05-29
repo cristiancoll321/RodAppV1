@@ -84,27 +84,6 @@
       text-transform: uppercase; letter-spacing: 0.06em;
     }
 
-    /* Docs status */
-    .docs-row {
-      display: flex; gap: 10px;
-      margin: 0 16px 20px;
-    }
-    .doc-pill {
-      flex: 1;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 12px;
-      text-align: center;
-    }
-    .doc-pill-label {
-      font-family: var(--font-display);
-      font-size: 0.85rem; font-weight: 600;
-      color: var(--text-primary);
-      display: block;
-    }
-    .doc-pill-status { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; display: block; }
-
     /* Quick actions */
     .quick-actions {
       padding: 0 16px;
@@ -158,49 +137,6 @@
       font-size: 0.85rem;
       color: var(--accent-orange);
     }
-
-    /* Tips card */
-    .tip-card {
-      margin: 0 16px 20px;
-      background: linear-gradient(135deg, rgba(0,212,200,0.05), rgba(0,212,200,0.02));
-      border: 1px solid rgba(0,212,200,0.15);
-      border-radius: var(--radius);
-      padding: 16px;
-      display: flex; align-items: flex-start; gap: 12px;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    .tip-tag {
-      font-family: var(--font-display);
-      font-size: 0.7rem; font-weight: 600;
-      letter-spacing: 0.08em;
-      color: var(--accent-cyan);
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-
-    /* ── Desktop content width ──────────────── */
-    @media (min-width: 768px) {
-      .page, .page-no-nav { padding-left: 0; }
-      .page-header { max-width: 860px; margin-left: auto; margin-right: auto; }
-    }
-    @media (min-width: 1024px) {
-      .page-header { padding: 32px 32px 20px; }
-      .section-title { padding-left: 32px; padding-right: 32px; }
-      .card { margin-left: 32px; margin-right: 32px; }
-    }
-
-    @media (min-width: 1024px) {
-      .home-header { max-width: 900px; margin: 0 auto; padding: 36px 40px 20px; }
-      .moto-card, .docs-row { margin-left: auto !important; margin-right: auto !important; max-width: 900px; }
-      .docs-row { padding: 0 40px; }
-      .quick-actions { max-width: 900px; }
-      .home-body { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 300px; gap: 28px; padding: 0 40px; align-items: start; }
-      .home-body .section-title { padding: 0 !important; }
-      .home-body .card { margin: 0 0 12px !important; }
-      .home-body .tip-card { margin: 0 0 12px !important; }
-      .home-body .quick-actions { padding: 0 !important; }
-    }
   </style>
 </head>
 <body>
@@ -208,8 +144,8 @@
     <!-- Header -->
     <header class="home-header fade-up stagger-1">
       <div>
-        <p class="greeting">Buenos días 🤘</p>
-        <p class="greeting-name">Carlos Rodríguez</p>
+        <p class="greeting" id="greeting">Hola 🤘</p>
+        <p class="greeting-name" id="greeting-name">Cargando...</p>
       </div>
       <a href="notifications.html" class="notif-btn" id="notif-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -217,59 +153,19 @@
       </a>
     </header>
 
-    <!-- Moto Card -->
-    <div class="moto-card fade-up stagger-2">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-        <div>
-          <p class="moto-name">Yamaha MT-09</p>
-          <p class="moto-plate">BGT-123 · 2023</p>
-        </div>
-        <span class="badge badge-cyan">Premium</span>
-      </div>
-      <div class="moto-stats">
-        <div class="moto-stat">
-          <p class="moto-stat-val">12,500</p>
-          <p class="moto-stat-label">Kilómetros</p>
-        </div>
-        <div class="moto-stat">
-          <p class="moto-stat-val" style="color:var(--accent-orange);">500</p>
-          <p class="moto-stat-label">Próx. cambio aceite</p>
-        </div>
-        <div class="moto-stat">
-          <p class="moto-stat-val" style="color:var(--accent-green);">OK</p>
-          <p class="moto-stat-label">Estado legal</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Documentos -->
-    <p class="section-title fade-up stagger-2">Documentación Legal</p>
-    <div class="docs-row fade-up stagger-3">
-      <div class="doc-pill">
-        <span class="dot dot-green" style="margin: 0 auto 6px; display:block;"></span>
-        <span class="doc-pill-label">SOAT</span>
-        <span class="doc-pill-status badge badge-green">Vigente</span>
-      </div>
-      <div class="doc-pill">
-        <span class="dot dot-orange" style="margin: 0 auto 6px; display:block;"></span>
-        <span class="doc-pill-label">RTM</span>
-        <span class="doc-pill-status badge badge-orange">5 días</span>
-      </div>
-      <div class="doc-pill">
-        <span class="dot dot-green" style="margin: 0 auto 6px; display:block;"></span>
-        <span class="doc-pill-label">Licencia</span>
-        <span class="doc-pill-status badge badge-green">A2</span>
-      </div>
+    <!-- Moto Card Principal -->
+    <div class="moto-card fade-up stagger-2" id="home-moto-container">
+      <!-- Se carga dinámicamente desde main.js:loadHomeMoto() -->
     </div>
 
     <!-- Acciones rápidas -->
     <p class="section-title fade-up stagger-3">Acciones Rápidas</p>
     <div class="quick-actions fade-up stagger-4">
-      <a href="fuel-register.html" class="quick-btn">
+      <a id="btn-quick-fuel" href="fuel-register.html" class="quick-btn">
         <div class="quick-btn-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M3 22V8l6-6h8l4 4v16"/><path d="M3 14h18"/><path d="M15 2v6"/></svg>
         </div>
-        <span>Nuevo combustible</span>
+        <span>Tanqueada</span>
       </a>
       <a href="maintenance.html" class="quick-btn">
         <div class="quick-btn-icon" style="background:rgba(255,107,53,0.1); color:var(--accent-orange);">
@@ -277,108 +173,67 @@
         </div>
         <span>Mantenimiento</span>
       </a>
-      <a href="map.html" class="quick-btn">
-        <div class="quick-btn-icon" style="background:rgba(0,212,200,0.1); color:var(--accent-cyan);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
-        </div>
-        <span>Ver mapa</span>
-      </a>
       <a href="garage.html" class="quick-btn">
         <div class="quick-btn-icon" style="background:rgba(255,60,60,0.1); color:var(--accent-red);">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
         </div>
-        <span>Documentos</span>
+        <span>Mis Motos</span>
       </a>
     </div>
 
-    <div class="home-body">
-    <div class="home-main">
-    <!-- Actividad reciente -->
-    <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 20px; margin-bottom:8px;" class="fade-up stagger-4">
-      <p class="section-title" style="padding:0; margin:0;">Actividad Reciente</p>
-      <a href="history.html" style="font-size:0.78rem; color:var(--accent-cyan); text-decoration:none;">Ver historial</a>
-    </div>
-
-    <div class="card fade-up stagger-5" style="padding: 0;">
-      <div class="activity-item">
-        <div class="activity-icon" style="background:rgba(0,212,200,0.08); color:var(--accent-cyan);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 22V8l6-6h8l4 4v16"/></svg>
-        </div>
-        <div class="activity-info">
-          <strong>Tanqueo Estación Terpel</strong>
-          <span>Hace 2 días · Corriente</span>
-        </div>
-        <span class="activity-amount">-$45.000</span>
-      </div>
-      <div class="activity-item">
-        <div class="activity-icon" style="background:rgba(255,107,53,0.08); color:var(--accent-orange);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <div class="activity-info">
-          <strong>Lavado Premium</strong>
-          <span>Hace 5 días</span>
-        </div>
-        <span class="activity-amount">-$15.000</span>
-      </div>
-      <div class="activity-item">
-        <div class="activity-icon" style="background:rgba(255,60,60,0.08); color:var(--accent-red);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-        </div>
-        <div class="activity-info">
-          <strong>Ajuste de cadena</strong>
-          <span>Hace 1 semana · Taller Rod</span>
-        </div>
-        <span class="activity-amount">-$80.000</span>
+    <div id="home-extra-sections" style="display:none;">
+      <p class="section-title fade-up stagger-2">Actividad Reciente</p>
+      <div class="card fade-up stagger-5" style="padding: 0;" id="recent-activity">
+        <!-- Se cargará si hay datos reales -->
       </div>
     </div>
-
-    <!-- Tips -->
-    <p class="section-title fade-up stagger-5">Consejos para Moteros</p>
-    <a href="tips.html" class="tip-card fade-up stagger-5">
-      <div style="width:40px; height:40px; border-radius:8px; background:rgba(0,212,200,0.1); display:flex; align-items:center; justify-content:center; color:var(--accent-cyan); flex-shrink:0;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      </div>
-      <div>
-        <p class="tip-tag">Seguridad · 4 min</p>
-        <p style="font-size:0.88rem; color:var(--text-primary); font-weight:500;">Cómo frenar en lluvia sobre líneas pintadas</p>
-        <p style="font-size:0.78rem; margin-top:4px;">Aprende la técnica de frenado progresivo para la ciudad.</p>
-      </div>
-    </a>
-    </div><!-- /home-main -->
-    <div class="home-side">
-      <!-- Panel lateral desktop -->
-    </div><!-- /home-side -->
-    </div><!-- /home-body -->
-  </div>
-
-  <!-- Bottom Nav -->
-  <nav class="bottom-nav">
-    <a href="home.html" class="nav-item active" id="nav-home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      Inicio
-    </a>
-    <a href="garage.html" class="nav-item" id="nav-garage">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-      Garaje
-    </a>
-    <a href="map.html" class="nav-item" id="nav-map">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-      Mapa
-    </a>
-    <a href="history.html" class="nav-item" id="nav-history">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      Historial
-    </a>
-    <a href="profile.html" class="nav-item" id="nav-profile">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      Perfil
-    </a>
-  </nav>
 
   <script src="../js/main.js"></script>
-  <script src="../js/nav.js"></script>
   <script>
-    document.getElementById('notif-badge').style.display = 'flex';
+    // Sobrescribir ligeramente loadHomeMoto para manejar el ID en el botón de tanqueada
+    async function initHome() {
+      const usuario = getUser();
+      if (!usuario.id) return;
+
+      try {
+        const res = await fetch(`http://localhost:8081/api/motos/usuario/${usuario.id}`);
+        const motos = await res.json();
+        if (motos.length > 0) {
+          const mainMoto = motos[0];
+          document.getElementById('btn-quick-fuel').href = `fuel-register.html?id=${mainMoto.id}`;
+          document.getElementById('home-extra-sections').style.display = 'block';
+          loadRecentActivity(mainMoto.id);
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    async function loadRecentActivity(motoId) {
+      const container = document.getElementById('recent-activity');
+      try {
+        const res = await fetch(`http://localhost:8081/api/tanqueadas/moto/${motoId}`);
+        const data = await res.json();
+        if (data.length === 0) {
+          container.innerHTML = '<p style="padding:20px; color:var(--text-muted); font-size:0.8rem; text-align:center;">Sin actividad reciente.</p>';
+          return;
+        }
+        // Mostrar solo las últimas 3
+        const recent = data.slice(-3).reverse();
+        container.innerHTML = recent.map(t => `
+          <div class="activity-item">
+            <div class="activity-icon" style="background:rgba(0,212,200,0.08); color:var(--accent-cyan);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 22V8l6-6h8l4 4v16"/></svg>
+            </div>
+            <div class="activity-info">
+              <strong>Tanqueo ${t.tipoCombustible}</strong>
+              <span>${new Date(t.fecha).toLocaleDateString()}</span>
+            </div>
+            <span class="activity-amount">-$${t.valorPagado.toLocaleString()}</span>
+          </div>
+        `).join('');
+      } catch (e) { container.innerHTML = '<p>Error.</p>'; }
+    }
+
+    document.addEventListener('DOMContentLoaded', initHome);
   </script>
 </body>
 </html>
