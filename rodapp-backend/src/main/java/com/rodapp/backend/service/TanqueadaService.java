@@ -27,6 +27,16 @@ public class TanqueadaService {
         Motocicleta moto = motoRepository.findById(t.getMotocicleta().getId())
                 .orElseThrow(() -> new RuntimeException("Moto no encontrada"));
 
+        if (t.getOdometro() < moto.getKmActual()) {
+            throw new RuntimeException("El odómetro no puede ser menor al actual");
+        }
+        //Actualizar KM actual
+        moto.setKmActual((double) t.getOdometro());
+
+        //guarda la moto actualizada
+        motoRepository.save(moto);
+
+        //asignar moto real
         t.setMotocicleta(moto);
 
         return tanqueadaRepository.save(t);

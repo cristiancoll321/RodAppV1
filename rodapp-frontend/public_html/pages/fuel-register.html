@@ -109,6 +109,109 @@
     .view-tabs { display: flex; gap: 0; margin: 0 16px 20px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
     .view-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; color: var(--text-muted); background: transparent; border: none; transition: all 0.2s; }
     .view-tab.active { background: var(--bg-surface); color: var(--accent-cyan); }
+
+    /* Moto Selector Mejorado */
+    #moto-selector {
+      margin: 0 16px 24px 16px;
+      padding: 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      animation: slideDown 0.3s ease-out;
+    }
+
+    #moto-selector label {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    #select-moto {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--bg-dark);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300d4c8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 20px;
+      padding-right: 40px;
+    }
+
+    #select-moto:hover {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 2px rgba(0,212,200,0.1);
+    }
+
+    #select-moto:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(0,212,200,0.15);
+    }
+
+    #select-moto option {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      padding: 10px;
+    }
+
+    #moto-info {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(0,212,200,0.08);
+      border-left: 3px solid var(--accent-cyan);
+      border-radius: var(--radius);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    #moto-info.show {
+      display: block;
+    }
+
+    #moto-info p {
+      margin: 4px 0;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+    }
+
+    #moto-info span {
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
   </style>
 </head>
 <body>
@@ -121,6 +224,16 @@
       <a href="fuel-register.html?view=history" style="font-size:0.78rem; color:var(--accent-cyan); text-decoration:none;">Historial</a>
     </div>
 
+
+
+    <div id="moto-selector" style="display:none;">
+      <label>🏍️ Selecciona tu motocicleta</label>
+      <select id="select-moto"></select>
+      <div id="moto-info">
+        <p>📊 Placa: <span id="info-placa">--</span></p>
+        <p>⚙️ Cilindraje: <span id="info-cilindrada">--</span></p>
+      </div>
+    </div>
     <div style="padding: 0 20px;">
       <!-- Tipo de gasolina -->
       <p class="section-title" style="padding:0; margin-bottom:12px;" class="fade-up stagger-2">Tipo de Gasolina</p>
@@ -151,10 +264,11 @@
       <div class="form-group fade-up stagger-3">
         <label>Kilometraje Actual</label>
         <div style="position:relative;">
-          <input type="number" value="12500" id="inp-odometro"/>
+          <input type="number" id="inp-odometro"/>
           <span style="position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:0.78rem; color:var(--text-muted);">km</span>
         </div>
-        <p style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">Último registro: 12,350 km</p>
+        <p style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;" id="ultimo-km-info">Cargando...</p>
+        <p style="font-size:0.72rem; color:var(--accent-orange); margin-top:4px; display:none;" id="km-warning">⚠️ El km debe ser mayor al anterior</p>
       </div>
 
       <!-- Galones / Litros -->
@@ -278,16 +392,129 @@
   <script>
     // Detectar parámetros de URL
     const params = new URLSearchParams(window.location.search);
-    const motoId = params.get('id');
+    let motoId = params.get('id');
     let tipoCombustibleSeleccionado = 'CORRIENTE';
+    let ultimoOdometro = 0;
 
-    // Debug: verificar que el ID llegó correctamente
     console.log('Moto ID desde URL:', motoId);
 
-    // Validación: si no hay ID válido, redirigir
+    // Cargar último odómetro registrado
+    async function cargarUltimoOdometro(id) {
+      try {
+        const res = await fetch(`http://localhost:8080/api/tanqueadas/moto/${id}`);
+        if (!res.ok) throw new Error('Error obteniendo tanqueadas');
+        
+        const tanqueadas = await res.json();
+        
+        if (tanqueadas && tanqueadas.length > 0) {
+          // Ordenar por fecha descendente y tomar el primero
+          const sorted = tanqueadas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+          ultimoOdometro = sorted[0].odometro || 0;
+          document.getElementById('inp-odometro').value = ultimoOdometro;
+          document.getElementById('ultimo-km-info').textContent = `Último registro: ${ultimoOdometro.toLocaleString()} km`;
+        } else {
+          // Si no hay tanqueadas, cargar del kmActual de la moto
+          const resM = await fetch(`http://localhost:8080/api/motos/${id}`);
+          if (resM.ok) {
+            const moto = await resM.json();
+            ultimoOdometro = moto.kmActual || moto.kmInicial || 0;
+            document.getElementById('inp-odometro').value = ultimoOdometro;
+            document.getElementById('ultimo-km-info').textContent = `Km inicial: ${ultimoOdometro.toLocaleString()} km`;
+          }
+        }
+      } catch (error) {
+        console.error('Error cargando odómetro:', error);
+        document.getElementById('ultimo-km-info').textContent = 'Error cargando km anterior';
+      }
+    }
+
+    // Validar que km no disminuya
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputOdometro = document.getElementById('inp-odometro');
+      const warningEl = document.getElementById('km-warning');
+      
+      if (inputOdometro) {
+        inputOdometro.addEventListener('blur', () => {
+          const valor = parseInt(inputOdometro.value) || 0;
+          if (valor < ultimoOdometro) {
+            warningEl.style.display = 'block';
+          } else {
+            warningEl.style.display = 'none';
+          }
+        });
+      }
+    });
+
+    // Mostrar selector si no hay ID o inicializar
+    async function mostrarSelectorMotos() {
+      const usuario = getUser();
+      
+      if (!usuario || !usuario.id) {
+        alert('❌ No hay usuario logueado');
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:8080/api/motos/usuario/${usuario.id}`);
+        if (!res.ok) throw new Error('Error obteniendo motos');
+        
+        const motos = await res.json();
+
+        if (motos.length === 0) {
+          alert('❌ No tienes motos registradas. Registra una primero.');
+          window.location.href = 'moto-register.html';
+          return;
+        }
+
+        const select = document.getElementById("select-moto");
+        const container = document.getElementById("moto-selector");
+        const motoInfo = document.getElementById("moto-info");
+
+        container.style.display = "block";
+
+        select.innerHTML = motos.map(m => `
+          <option value="${m.id}" data-placa="${m.placa}" data-cilindrada="${m.cilindrada || 'N/A'}">
+            ${m.marca} ${m.modelo} (${m.placa})
+          </option>
+        `).join("");
+
+        // Función para actualizar info dinámica
+        const actualizarInfo = (motoSeleccionada) => {
+          const selectedOption = select.options[select.selectedIndex];
+          document.getElementById('info-placa').textContent = selectedOption.getAttribute('data-placa');
+          document.getElementById('info-cilindrada').textContent = selectedOption.getAttribute('data-cilindrada');
+          motoInfo.classList.add('show');
+        };
+
+        // Si no hay motoId en URL, usar el primero seleccionado
+        if (!motoId) {
+          motoId = String(motos[0].id);
+          console.log('Moto por defecto seleccionada:', motoId);
+          select.value = motoId;
+          document.getElementById('back-btn').href = `moto-detail.html?id=${motoId}`;
+          actualizarInfo(motos[0]);
+          cargarUltimoOdometro(motoId);
+          
+          select.addEventListener('change', (e) => {
+            motoId = String(e.target.value);
+            console.log('Moto cambiada a:', motoId);
+            document.getElementById('back-btn').href = `moto-detail.html?id=${motoId}`;
+            actualizarInfo();
+            cargarUltimoOdometro(motoId);
+          });
+        }
+      } catch (error) {
+        console.error('Error cargando motos:', error);
+        alert('❌ Error cargando tus motos');
+      }
+    }
+
+    // Llamar al iniciar la página
     if (!motoId) {
-      alert('Error: Moto no válida');
-      window.location.href = 'garage.html';
+      mostrarSelectorMotos();
+    } else {
+      // Si hay ID de moto en URL, cargar último odómetro
+      cargarUltimoOdometro(motoId);
     }
 
     // Si hay ID de moto, cambiar el back button
@@ -320,20 +547,33 @@
     }
 
     async function guardarTanqueada() {
+      // Validar que hay una moto seleccionada
+      const motoIdNum = Number(motoId);
+      console.log('MotoId actual:', motoId, 'MotoId como número:', motoIdNum);
+      
+      if (!motoId || motoId === '' || isNaN(motoIdNum) || motoIdNum <= 0) {
+        alert('❌ Selecciona una motocicleta válida antes de registrar.');
+        return;
+      }
+
       const valor = parseFloat(document.getElementById('inp-valor').value);
       const odometro = parseInt(document.getElementById('inp-odometro').value);
       const galones = parseFloat(document.getElementById('inp-galones').value);
 
       if (valor === '' || valor === null || isNaN(valor) || valor <= 0) {
-        alert('Por favor ingresa un costo válido (mayor a 0).');
+        alert('❌ Por favor ingresa un costo válido (mayor a 0).');
         return;
       }
       if (!odometro || odometro <= 0) {
-        alert('Por favor ingresa el kilometraje actual válido.');
+        alert('❌ Por favor ingresa el kilometraje actual válido.');
+        return;
+      }
+      if (odometro < ultimoOdometro) {
+        alert(`❌ El km no puede disminuir. Último registro: ${ultimoOdometro} km. Ingresa un valor mayor o igual.`);
         return;
       }
       if (!galones || galones <= 0) {
-        alert('Por favor ingresa los galones cargados.');
+        alert('❌ Por favor ingresa los galones cargados.');
         return;
       }
 
@@ -343,14 +583,13 @@
         valorPagado: valor,
         odometro: odometro,
         tipoCombustible: tipoCombustibleSeleccionado,
-        motocicleta:{
-          id: Number(motoId)
+        motocicleta: {
+          id: motoIdNum
         }
       };
 
       console.log('Enviando tanqueada:', tanqueada);
-
-      console.log("JSON FINAL:", JSON.stringify(tanqueada, null, 2));
+      console.log('Moto ID siendo enviado:', motoIdNum);
 
       try {
         const res = await fetch('http://localhost:8080/api/tanqueadas', {
@@ -361,22 +600,34 @@
           body: JSON.stringify(tanqueada)
         });
 
-        const data = await res.text(); // 🔥 importante
+        const data = await res.text();
 
         if (!res.ok) {
           console.error("Error backend:", data);
-          alert("Error real: " + data);
+          alert("❌ Error: " + data);
           return;
         }
 
         console.log("Respuesta backend:", data);
+
+        // Actualizar kmActual en la moto con el nuevo odómetro
+        try {
+          const updateRes = await fetch(`http://localhost:8080/api/motos/${motoIdNum}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ kmActual: odometro })
+          });
+          console.log('Moto actualizada con nuevo km:', odometro);
+        } catch (e) {
+          console.warn('No se pudo actualizar km en moto:', e);
+        }
 
         alert('✅ Tanqueada registrada correctamente');
         window.location.href = `moto-detail.html?id=${motoId}`;
 
       } catch (error) {
         console.error('Error conexión:', error);
-        alert('Error de conexión: ' + error.message);
+        alert('❌ Error de conexión: ' + error.message);
       }
     }
   </script>

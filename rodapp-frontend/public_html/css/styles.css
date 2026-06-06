@@ -1,6 +1,6 @@
 /* =============================================
    RodApp - Global Styles
-   Dark theme · Bogotá 2024
+   Dark theme · Bogotá 2026
    ============================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -625,7 +625,7 @@ select option { background: var(--bg-surface); }
 
   /* Versión en la parte inferior del sidebar */
   .bottom-nav::after {
-    content: 'Bogotá · 2024';
+    content: 'Bogotá · 2026';
     display: block;
     font-family: var(--font-mono);
     font-size: 0.62rem;

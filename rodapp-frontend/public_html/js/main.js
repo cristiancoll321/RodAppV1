@@ -71,7 +71,8 @@ function getUser() {
       console.error('Error parseando usuario:', e);
     }
   }
-  return USER;
+  // Si no hay usuario en localStorage, devolver un objeto por defecto
+  return { name: 'Usuario', email: '', id: null };
 }
 
 // ── Saludo dinámico según hora ──────────────
