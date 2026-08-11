@@ -1,0 +1,206 @@
+/* Fuel type selector */
+.fuel-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+.fuel-option {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.fuel-option.selected {
+    background: rgba(0,212,200,0.1);
+    border-color: var(--accent-cyan);
+}
+.fuel-option p { font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-top: 6px; }
+.fuel-option span { font-size: 0.7rem; color: var(--text-muted); }
+.fuel-icon { font-size: 1.4rem; }
+
+/* Cost input grande */
+.cost-display {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.cost-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.cost-input-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.currency { font-family: var(--font-display); font-size: 1.4rem; color: var(--text-muted); }
+#cost-input {
+    background: transparent; border: none;
+    font-family: var(--font-display); font-size: 2.4rem; font-weight: 700;
+    color: var(--accent-cyan); text-align: center;
+    width: 180px; outline: none;
+}
+#cost-input::placeholder { color: rgba(0,212,200,0.3); }
+
+/* Location toggle */
+.location-row {
+    display: flex; align-items: center;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px; gap: 12px;
+}
+.location-icon { color: var(--accent-cyan); flex-shrink: 0; }
+.location-info { flex: 1; }
+.location-info strong { display: block; font-size: 0.88rem; }
+.location-info span { font-size: 0.75rem; color: var(--text-muted); }
+
+/* Historial de combustible */
+.fuel-history-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+.fuel-summary {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+}
+.fuel-summary .amount { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; }
+.fuel-summary .trend { font-size: 0.78rem; color: var(--accent-green); }
+
+/* Mini bar chart */
+.mini-chart {
+    display: flex; align-items: flex-end; gap: 6px;
+    height: 50px; padding: 0 16px 12px;
+}
+.mini-bar { flex: 1; border-radius: 3px 3px 0 0; background: rgba(0,212,200,0.2); min-height: 4px; }
+.mini-bar.peak { background: var(--accent-cyan); }
+
+.fuel-item {
+    display: flex; align-items: center;
+    padding: 12px 16px; gap: 12px;
+    border-top: 1px solid var(--border);
+}
+.fuel-station-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: rgba(0,212,200,0.08);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent-cyan); flex-shrink: 0;
+}
+.fuel-item-info { flex: 1; }
+.fuel-item-info strong { display: block; font-size: 0.85rem; }
+.fuel-item-info span { font-size: 0.72rem; color: var(--text-muted); }
+.fuel-item-amount { text-align: right; }
+.fuel-item-amount strong { display: block; font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-orange); }
+.fuel-item-amount span { font-size: 0.7rem; color: var(--text-muted); }
+
+/* View tabs */
+.view-tabs { display: flex; gap: 0; margin: 0 16px 20px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.view-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; color: var(--text-muted); background: transparent; border: none; transition: all 0.2s; }
+.view-tab.active { background: var(--bg-surface); color: var(--accent-cyan); }
+
+/* Moto Selector Mejorado */
+#moto-selector {
+    margin: 0 16px 24px 16px;
+    padding: 16px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    animation: slideDown 0.3s ease-out;
+}
+
+#moto-selector label {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+#select-moto {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg-dark);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300d4c8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+    padding-right: 40px;
+}
+
+#select-moto:hover {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 0 2px rgba(0,212,200,0.1);
+}
+
+#select-moto:focus {
+    outline: none;
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 0 3px rgba(0,212,200,0.15);
+}
+
+#select-moto option {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    padding: 10px;
+}
+
+#moto-info {
+    display: none;
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(0,212,200,0.08);
+    border-left: 3px solid var(--accent-cyan);
+    border-radius: var(--radius);
+    animation: fadeIn 0.3s ease-out;
+}
+
+#moto-info.show {
+    display: block;
+}
+
+#moto-info p {
+    margin: 4px 0;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+#moto-info span {
+    color: var(--accent-cyan);
+    font-weight: 600;
+}
+
+@keyframes slideDown {
+    from {
+    opacity: 0;
+    transform: translateY(-10px);
+    }
+    to {
+    opacity: 1;
+    transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+    opacity: 0;
+    }
+    to {
+    opacity: 1;
+    }
+}

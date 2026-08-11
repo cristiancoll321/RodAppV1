@@ -1,0 +1,30 @@
+/* ── Tarjeta de documento ──────── */
+.doc-card-full { margin:0 16px 16px;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden; }
+.doc-card-header { padding:20px;display:flex;align-items:center;gap:14px; }
+.doc-card-icon { width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.doc-card-meta strong { font-family:var(--font-display);font-size:1.1rem;display:block; }
+.doc-card-meta span   { font-size:0.78rem;color:var(--text-muted); }
+
+/* Campos de detalle */
+.detail-body { padding:0 20px 20px; }
+.detail-row  { display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border); }
+.detail-row:last-child { border-bottom:none; }
+.detail-lbl  { font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;flex:1; }
+.detail-val  { font-size:0.88rem;font-weight:500;text-align:right;max-width:62%; }
+
+/* Alerta de vencimiento */
+.expiry-alert { margin:0 16px 16px;border-radius:var(--radius);padding:12px 14px;display:flex;gap:10px;align-items:flex-start; }
+.expiry-alert svg { flex-shrink:0;margin-top:1px; }
+
+/* Nota legal */
+.legal-note { margin:0 16px 16px;background:rgba(0,212,200,0.03);border:1px solid rgba(0,212,200,0.12);border-radius:var(--radius);padding:12px 14px;display:flex;gap:10px;align-items:flex-start; }
+.legal-note p { font-size:0.8rem;line-height:1.5; }
+
+/* ── Formulario ────────────────── */
+.form-step-tag { font-family:var(--font-mono);font-size:0.68rem;color:var(--accent-cyan);letter-spacing:0.1em;padding:0 20px;margin-bottom:16px;display:block; }
+
+/* Footer fijo */
+.fixed-footer { position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:14px 20px;background:var(--bg-dark);border-top:1px solid var(--border);z-index:50; }
+
+.btn-delete { background:rgba(239,68,68,0.1) !important; color:var(--accent-red) !important; border:1px solid rgba(239,68,68,0.3) !important; }
+.btn-delete:hover { background:rgba(239,68,68,0.2) !important; }

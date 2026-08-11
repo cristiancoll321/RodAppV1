@@ -1,0 +1,1 @@
+document.getElementById('notif-badge').style.display = 'flex';
